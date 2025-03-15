@@ -13,7 +13,7 @@ pub struct ExportBase {
 pub struct ExportV1 {
     #[serde(flatten)]
     pub base: ExportBase,
-    pub chats: Option<Vec<ChatInterface>>,
+    pub chats: Vec<ChatInterface>,
     pub folders: FolderCollection,
 }
 

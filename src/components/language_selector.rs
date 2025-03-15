@@ -1,22 +1,30 @@
+use std::collections::HashMap;
+
 use yew::prelude::*;
 
-use crate::components::icons::DownChevronArrow;
+use crate::{components::icons::DownChevronArrow, constants::SELECTABLE_LANGUAGES, hooks::translation::use_translation};
 
 #[function_component]
 pub(crate) fn LanguageSelector() -> Html {
+  let i18n  = use_translation(vec![]);
   let dropdown = use_state(|| false);
-  let selectableLanguages: Vec<String> = vec![];
-  let languageCodeToName: Vec<String> = vec![];
+  let lang_code_to_name: HashMap<String, String> = HashMap::new();
+  fn get_language_name(lang_code_to_name: &HashMap<String, String>, language: &str) -> String {
+      lang_code_to_name
+        .get(language)
+        .cloned() // Get the value as an owned `String`
+        .unwrap_or_else(|| language.to_string()) // Fallback to the language code if not found
+  }
+
   html! {
     <div class="prose dark:prose-invert relative">
       <button
         class="btn btn-neutral btn-small w-36 flex justify-between"
         type="button"
-        onclick={|e| { dropdown.set(!*dropdown); }}
+        onclick={ let dropdown=dropdown.clone(); move |_| { dropdown.set(!*dropdown); }}
         aria-label="language selector"
       >
-        // {languageCodeToName[i18n.language as keyof typeof languageCodeToName] ??
-        //   i18n.language}
+        // { get_language_name(&lang_code_to_name,  i18n.language) }
         <DownChevronArrow />
       </button>
       <div
@@ -28,7 +36,7 @@ pub(crate) fn LanguageSelector() -> Html {
           aria-labelledby="dropdownDefaultButton"
         >
           {
-            selectableLanguages.into_iter().map(|lang| {
+            SELECTABLE_LANGUAGES.into_iter().map(|lang| {
               html! {
                 <li
                   class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"

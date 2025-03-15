@@ -11,13 +11,35 @@ pub enum Role {
     Assistant,
     System,
 }
+impl std::fmt::Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Role::User => "user",
+            Role::Assistant => "assistant",
+            Role::System => "system",
+        }.fmt(f)
+    }
+}
+
+impl std::str::FromStr for Role {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "user" => Ok(Role::User),
+            "assistant" => Ok(Role::Assistant),
+            "system" => Ok(Role::System),
+            _ => Err(()),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default, Store, PartialEq, Serialize, Deserialize)]
 pub(crate) struct MessageInterface {
-    role: Role,
-    content: String,
-    folder: Option<String>,
-    messages: Vec<MessageInterface>,
+    pub(crate) role: Role,
+    pub(crate) content: String,
+    pub(crate) folder: Option<String>,
+    pub(crate) messages: Vec<MessageInterface>,
 }
 
 #[derive(Debug, Clone, Default, Store, PartialEq, Serialize, Deserialize)]

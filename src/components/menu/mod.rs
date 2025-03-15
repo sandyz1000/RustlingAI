@@ -5,60 +5,75 @@ pub(crate) mod chat_folder;
 pub(crate) mod chat_history;
 pub(crate) mod chat_search;
 pub(crate) mod config;
+pub(crate) mod menu_options;
 pub(crate) mod prompt_library;
 pub(crate) mod settings;
-pub(crate) mod menu_options;
+pub(crate) mod chat_histories;
 
 use std::rc::Rc;
 
 use chat_folder::NewChat;
+use chat_histories::ChatHistoryList;
 use gloo::events::EventListener;
 use menu_options::MenuOptions;
 use yew::prelude::*;
-use yewdux::use_store;
+use yewdux::prelude::*;
 
-use crate::{components::icons::{CrossIcon2, DownArrow, MenuIcon, NewFolderIcon}, store::slice::{ChatSlice, ConfigSlice}, types::chat::Folder};
+use crate::{
+    components::icons::{CrossIcon2, DownArrow, MenuIcon, NewFolderIcon},
+    store::slice::{ChatSlice, ConfigSlice},
+    types::chat::Folder,
+};
 
 #[function_component]
 pub fn NewFolder() -> Html {
-  let (state, _dispatch) = use_store::<ChatSlice>();
-  let generating = state.generating;
-  let folders = state.folders.clone();
-  let addFolder = {
-    let mut index = 1;
-    let mut name = format!("New Folder {}", index);
-    for (_, f) in &folders {
-      if f.name == name {
-        index += 1;
-        name = format!("New Folder {}", index);
-      }
-    }
-    let id = "".to_string();
-    let mut folder = Folder { id: id.clone(), name, expanded: false, order: 0, color: None};
-    move || {
-      _dispatch.reduce_mut(|c| c.folders.insert(id, folder));
-    }
-  };
+    let (state, _dispatch) = use_store::<ChatSlice>();
+    let generating = state.generating;
+    let folders = state.folders.clone();
+    let addFolder = {
+        let mut index = 1;
+        let mut name = format!("New Folder {}", index);
+        for (_, f) in &folders {
+            if f.name == name {
+                index += 1;
+                name = format!("New Folder {}", index);
+            }
+        }
+        let id = "".to_string();
+        let mut folder = Folder {
+            id: id.clone(),
+            name,
+            expanded: false,
+            order: 0,
+            color: None,
+        };
+        move || {
+            _dispatch.reduce_mut(|c| c.folders.insert(id, folder));
+        }
+    };
     html! {
       <a
       class={classes!("flex", "py-3", "px-3", "items-center", "gap-3", "rounded-md", "hover:bg-gray-500/10", "transition-colors", "duration-200", "text-white", "text-sm", "mb-2", "flex-shrink-0", "border", "border-white/20", "transition-opacity", if generating {"cursor-not-allowed opacity-40"} else {"cursor-pointer opacity-100"}) }
-      onclick={let addFolder = addFolder.clone(); |e| if !generating {addFolder()}}
+      onclick={let addFolder = addFolder.clone(); move |e| if !generating {addFolder()}}
     >
       <NewFolderIcon />
     </a>
     }
 }
 
-
 #[function_component]
 pub fn Menu() -> Html {
     fn get_inner_width() -> f64 {
-        web_sys::window().unwrap().inner_width().unwrap().as_f64().unwrap()
+        gloo_utils::window()
+            .inner_width()
+            .unwrap()
+            .as_f64()
+            .unwrap()
     }
     let (state, _dispatch) = use_store::<ConfigSlice>();
     let window_width_ref = use_mut_ref(|| get_inner_width());
     let hide_side_menu = use_state(|| state.hide_side_menu);
-    
+
     {
         let hide_side_menu = hide_side_menu.clone();
         let window_width_ref = window_width_ref.clone();
@@ -72,7 +87,7 @@ pub fn Menu() -> Html {
 
             // Create resize event listener
             let listener = Rc::new(EventListener::new(
-                &web_sys::window().unwrap(),
+                &gloo_utils::window(),
                 "resize",
                 move |_event| {
                     let current_width = get_inner_width();
@@ -88,7 +103,7 @@ pub fn Menu() -> Html {
         });
     }
 
-    html!{
+    html! {
         <>
       <div
         id="menu"
@@ -122,7 +137,7 @@ pub fn Menu() -> Html {
           } else {
             <DownArrow />
           }
-          
+
         </div>
       </div>
       <div
@@ -131,35 +146,5 @@ pub fn Menu() -> Html {
         onclick={|e| {}}
       />
     </>
-    }
-}
-
-
-#[function_component]
-pub fn ChatHistoryList() -> Html {
-    let isHover = use_state(|| false);
-    html! {
-        <div
-      class={classes!("flex-col flex-1 overflow-y-auto hide-scroll-bar border-b border-white/20", if *isHover {"bg-gray-800/40"} else {""})}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDragEnd={handleDragEnd}
-    >
-      <ChatSearch filter={filter} setFilter={setFilter} />
-      <div class="flex flex-col gap-2 text-gray-100 text-sm">
-        {Object.keys(chatFolders).map((folderId) => (
-          <ChatFolder
-            folderChats={chatFolders[folderId]}
-            folderId={folderId}
-            key={folderId}
-          />
-        ))}
-        {noChatFolders.map(({ title, index, id }) => (
-          <ChatHistory title={title} key={`${title}-${id}`} chatIndex={index} />
-        ))}
-      </div>
-      <div class="w-full h-10" />
-    </div>
     }
 }

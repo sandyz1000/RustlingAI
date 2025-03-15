@@ -139,6 +139,7 @@ fn DefaultSystemChat(SystemChatProps { system_message } : &SystemChatProps) -> H
     
     let handle_input = Callback::from(|e: InputEvent| {
         if let Some(target) = e.target_dyn_into::<web_sys::HtmlTextAreaElement>() {
+            // target.set_attribute(name, value)
             // target.set_style("height", "auto");
             // target.set_style("height", &format!("{}px", target.scroll_height()));
             // target.set_style("max-height", &format!("{}px", target.scroll_height()));

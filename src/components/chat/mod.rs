@@ -1,7 +1,13 @@
 pub(crate) mod message;
 pub(crate) mod config_menu;
 pub(crate) mod avatar;
-pub(crate) mod chat_view;
+pub(crate) mod content_view;
+pub(crate) mod markdown;
+pub(crate) mod edit_view;
+pub(crate) mod code_block;
+pub(crate) mod role_selector;
+pub(crate) mod command_prompt;
+pub(crate) mod button;
 
 use super::icons::SendIcon;
 use crate::{
@@ -249,9 +255,9 @@ pub(crate) fn ChatContent() -> Html {
             >
               if *generating {
                 <div class="md:w-[calc(100%-50px)] flex gap-4 flex-wrap justify-center">
-                  <DownloadChat {save_ref} />
+                  // <DownloadChat {save_ref} />
                   <ShareGPT />
-                  <CloneChat />
+                  // <CloneChat />
                 </div>
               }
             </div>
