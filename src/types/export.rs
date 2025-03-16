@@ -45,5 +45,5 @@ pub struct OpenAIChatAuthor {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OpenAIChatContent {
-    pub parts: Option<Vec<String>>,
+    pub parts: Vec<String>,
 }

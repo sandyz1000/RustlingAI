@@ -1,3 +1,5 @@
+use wasm_bindgen::JsCast;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yewdux::use_store;
 
@@ -34,15 +36,15 @@ impl std::fmt::Display for ChatHistoryClass {
 
 #[function_component]
 pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) -> Html {
-    let (state, _dispatch) = use_store::<ChatSlice>();
-    let (config, _) = use_store::<ConfigSlice>();
+    let (chat_store, _dispatch) = use_store::<ChatSlice>();
+    let (config_store, _) = use_store::<ConfigSlice>();
     let (chat_config, _) = use_store::<ConfigInterface>();
     let set_curr_chat_index = {
         let _dispatch = _dispatch.clone();
         move |index: i32| _dispatch.reduce_mut(|cs| cs.curr_chat_index = index)
     };
-    let active = *chat_index == state.curr_chat_index;
-    let generating = state.generating;
+    let active = *chat_index == chat_store.curr_chat_index;
+    let generating = chat_store.generating;
 
     let is_delete = use_state(|| false);
     let is_edit = use_state(|| false);
@@ -50,28 +52,33 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
     let input_ref = use_node_ref();
 
     let edit_title = {
-        let mut chats = state.chats.clone();
+        let store = chat_store.clone();
         let title = title.clone();
         let _dispatch = _dispatch.clone();
         let is_edit = is_edit.clone();
+        let chat_index = (*chat_index) as usize;
         move || {
-            chats[(*chat_index) as usize].title = Some((*title).clone());
+            let mut chats = store.chats.clone();
+            chats[chat_index].title = Some((*title).clone());
             _dispatch.reduce_mut(|c| c.chats = chats);
             is_edit.set(false);
         }
     };
 
     let delete_chat = {
-        let mut chats = state.chats.clone();
-        let title = title.clone();
-        let default_sys_msg = config.default_system_message.clone();
+        
+        let chat_store = chat_store.clone();
+        let config_store = config_store.clone();
         let chat_config = chat_config.clone();
         let _dispatch = _dispatch.clone();
         let is_delete = is_delete.clone();
         let set_curr_chat_index = set_curr_chat_index.clone();
+        let chat_index = (*chat_index) as usize;
         move || {
+            let mut chats = chat_store.chats.clone();
+            let default_sys_msg = config_store.default_system_message.clone();
             if !chats.is_empty() {
-                chats.remove((*chat_index) as usize);
+                chats.remove(chat_index);
             }
             if chats.is_empty() {
                 chats = vec![ChatInterface::new(
@@ -88,10 +95,67 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
         }
     };
 
-    let handleDragStart = { |e| {} };
-    let handleKeyDown = { |e| {} };
-    let handleTick = { |e| {} };
-    let handleCross = { |e| {} };
+    let handleDragStart = {
+        let chat_index = *chat_index as usize;
+        move |e: DragEvent| {
+            if e.data_transfer().is_some() {
+                e.data_transfer()
+                    .unwrap()
+                    .set_data("chatIndex", &chat_index.to_string());
+            }
+        }
+    };
+    let handleKeyDown = { 
+        let edit_title = edit_title.clone();
+        move |e: KeyboardEvent| {
+            if e.key() == "Enter" {
+                edit_title();
+            }
+        } 
+    };
+    let handleTick = {
+        let is_edit = is_edit.clone();
+        let is_delete = is_delete.clone();
+        let edit_title = edit_title.clone();
+        let delete_chat = delete_chat.clone();
+        move |e: MouseEvent| {
+            e.stop_propagation();
+            if *is_edit {
+                edit_title();
+            }  
+            else if *is_delete {
+                delete_chat();
+            }
+        } 
+    };
+    let handleCross = { 
+        let is_edit = is_edit.clone();
+        let is_delete = is_delete.clone();
+        move |_e| {
+            is_edit.set(false);
+            is_delete.set(false);
+        } 
+    };
+
+    {
+        let is_edit = is_edit.clone();
+        let input_ref = input_ref.clone();
+        use_effect_with(is_edit, move |_| {
+            if let Some(input) = input_ref.cast::<web_sys::HtmlInputElement>() {
+                input.focus().unwrap_or_else(|_| log::warn!("Failed to focus input"));
+            }
+            || ()
+        })
+    }
+    let on_change_edit = {
+        let title = title.clone();
+        move |e: Event| {
+            if let Some(s) = e.dyn_into::<HtmlInputElement>().ok() {
+                let v = s.value();
+                title.set(v);
+            }
+        }
+    };
 
     html! {
         <a
@@ -111,7 +175,7 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
               type="text"
               class="focus:outline-blue-600 text-sm border-none bg-transparent p-0 m-0 w-full"
               value={(*title).clone()}
-              onchange={|e| {}}
+              onchange={ on_change_edit }
               onkeydown={handleKeyDown}
               ref={input_ref}
             />
@@ -150,14 +214,14 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
                 <>
                 <button
                   class="p-1 hover:text-white"
-                  onclick={|e| {}}
+                  onclick={let is_edit = is_edit.clone(); move |_| is_edit.set(true) }
                   aria-label="edit chat title"
                 >
                   <EditIcon />
                 </button>
                 <button
                   class="p-1 hover:text-white"
-                  onclick={|e| {}}
+                  onclick={let is_delete = is_delete.clone(); move |_| is_delete.set(true) }
                   aria-label="delete chat"
                 >
                   <DeleteIcon />

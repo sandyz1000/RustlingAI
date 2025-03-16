@@ -1,15 +1,13 @@
-use std::collections::HashMap;
+use std::fmt::Debug;
 
 use crate::components::icons::ExportIcon;
 use crate::components::popup_modal::PopupModal;
 use crate::hooks::translation::use_translation;
-use crate::store::slice::ChatSlice;
-use crate::types::chat::{ChatInterface, Folder};
-use crate::types::export::{ExportBase, ExportV1};
-use crate::utils::{download_file, get_today};
-use serde::Deserialize;
+use crate::store::slice::{ChatSlice, ToastSlice, ToastStatus};
+use crate::types::export::{ExportBase, ExportV1, OpenAIChat};
+use crate::utils::{download_file, get_today, import_openai_chat_export};
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::FileReader;
+use web_sys::{FileReader, HtmlInputElement, ProgressEvent};
 use yew::prelude::*;
 use yewdux::use_store;
 
@@ -56,6 +54,12 @@ struct Alert {
 }
 
 use serde_wasm_bindgen::from_value;
+fn deserialize_js_value<T: serde::de::DeserializeOwned>(
+  js_value: JsValue,
+) -> Result<T, serde_wasm_bindgen::Error> {
+  from_value::<T>(js_value)
+}
+
 
 #[function_component]
 pub(crate) fn ImportChat() -> Html {
@@ -63,12 +67,7 @@ pub(crate) fn ImportChat() -> Html {
     let alert = use_state(|| None::<Alert>);
     let input_ref = use_node_ref();
     let (store, dispatch) = use_store::<ChatSlice>();
-    fn deserialize_js_value<T: serde::de::DeserializeOwned>(
-        js_value: JsValue,
-    ) -> Result<T, serde_wasm_bindgen::Error> {
-        from_value::<T>(js_value)
-    }
-
+    
     let handle_file_upload = {
         let input_ref = input_ref.clone();
         let store = store.clone();
@@ -137,10 +136,11 @@ pub(crate) fn ImportChat() -> Html {
                                 }
                             }
                         },
-                    ) as Box<dyn FnMut(_)>)
+                    ) as Box<dyn FnMut(web_sys::ProgressEvent)>)
                 };
 
                 reader.set_onload(Some(onload.as_ref().unchecked_ref()));
+                reader.read_as_text(&file);                
                 onload.forget();
 
                 let _ = reader.read_as_text(&file);
@@ -215,25 +215,84 @@ pub(crate) struct ChatOpenAIProps {
 
 #[function_component]
 pub(crate) fn ImportChatOpenAI(ChatOpenAIProps { set_is_modal_open }: &ChatOpenAIProps) -> Html {
+    let t = use_translation(vec![]);
+    let input_ref = use_node_ref();
+    let (_toast, toast_dispatch) = use_store::<ToastSlice>();
+    let (_, chat_dispatch) = use_store::<ChatSlice>();
+    let handle_file_upload = {
+        let input_ref=  input_ref.clone();
+        // let toast = toast.clone();
+        let toast_dispatch = toast_dispatch.clone();
+        let chat_dispatch = chat_dispatch.clone();
+        let set_is_modal_open = set_is_modal_open.clone();
+        move |_e| {
+            let input_element = input_ref.cast::<HtmlInputElement>();
+            let toast_dispatch = toast_dispatch.clone();
+            let chat_dispatch = chat_dispatch.clone();
+            let reader: FileReader = web_sys::FileReader::new().unwrap();
+            if input_element.is_none() {
+                return;
+            }
+            let file_reader = reader.clone();
+            let set_is_modal_open = set_is_modal_open.clone();
+            let file = input_element.unwrap().files().unwrap().get(0);
+            if file.is_none() {
+                return;
+            }
+            let file = file.unwrap();
+            let onload = {
+                wasm_bindgen::closure::Closure::wrap(Box::new(
+                    move |e: ProgressEvent| {
+                      let parsed_data =
+                                deserialize_js_value::<Vec<OpenAIChat>>(file_reader.result().unwrap());
+                        
+                      if let Err(e) = parsed_data {
+                          log::error!("Error:");
+                          toast_dispatch.reduce_mut(|d| {
+                            d.status = ToastStatus::Error;
+                            d.message = "Invalid format!".to_string();
+                            d.show = true;
+                          });
+                          
+                          return;
+                      }
+                      let chats = import_openai_chat_export(parsed_data.unwrap());
+                      chat_dispatch.reduce_mut(|c| c.chats.extend_from_slice(&chats));
+                      
+                      toast_dispatch.reduce_mut(|d| {
+                        d.status = ToastStatus::Success;
+                        d.message = "Imported successfully!".to_string();
+                        d.show = true;
+                      });
+                      set_is_modal_open.emit(false);
+                    }
+                ) as Box<dyn FnMut(ProgressEvent)>)
+            };
+            reader.set_onload(Some(onload.as_ref().unchecked_ref()));
+            
+            reader.read_as_text(&file);
+            onload.forget();
+        }
+    };
     html! {
         <>
-      <div className="text-lg font-bold text-gray-900 dark:text-gray-300 text-center mb-3">
-        {t("import")} "OpenAI ChatGPT" {t("export")}
+      <div class="text-lg font-bold text-gray-900 dark:text-gray-300 text-center mb-3">
+        {format!("{} {} {}", t("import".to_string(), None), "OpenAI ChatGPT", t("export".to_string(), None))}
       </div>
-      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-        {t("import")} "(JSON)"
+      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        {format!("{} {}", t("import".to_string(), None), "(JSON)")}
       </label>
       <input
-        className="w-full text-sm file:p-2 text-gray-800 file:text-gray-700 dark:text-gray-300 dark:file:text-gray-200 rounded-md cursor-pointer focus:outline-none bg-gray-50 file:bg-gray-100 dark:bg-gray-800 dark:file:bg-gray-700 file:border-0 border border-gray-300 dark:border-gray-600 placeholder-gray-900 dark:placeholder-gray-300 file:cursor-pointer"
+        class="w-full text-sm file:p-2 text-gray-800 file:text-gray-700 dark:text-gray-300 dark:file:text-gray-200 rounded-md cursor-pointer focus:outline-none bg-gray-50 file:bg-gray-100 dark:bg-gray-800 dark:file:bg-gray-700 file:border-0 border border-gray-300 dark:border-gray-600 placeholder-gray-900 dark:placeholder-gray-300 file:cursor-pointer"
         type="file"
-        ref={inputRef}
+        ref={input_ref}
       />
       <button
-        className="btn btn-small btn-primary mt-3"
-        onClick={handleFileUpload}
-        aria-label={t("import") as string}
+        class="btn btn-small btn-primary mt-3"
+        onclick={ handle_file_upload }
+        aria-label={ t("import".to_string(), None) }
       >
-        {t("import")}
+        { t("import".to_string(), None) }
       </button>
     </>
     }

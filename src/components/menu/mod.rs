@@ -2,13 +2,13 @@ pub(crate) mod about;
 pub(crate) mod api;
 pub(crate) mod chat_config;
 pub(crate) mod chat_folder;
+pub(crate) mod chat_histories;
 pub(crate) mod chat_history;
 pub(crate) mod chat_search;
 pub(crate) mod config;
 pub(crate) mod menu_options;
 pub(crate) mod prompt_library;
 pub(crate) mod settings;
-pub(crate) mod chat_histories;
 
 use std::rc::Rc;
 
@@ -28,33 +28,45 @@ use crate::{
 #[function_component]
 pub fn NewFolder() -> Html {
     let (state, _dispatch) = use_store::<ChatSlice>();
-    let generating = state.generating;
-    let folders = state.folders.clone();
-    let addFolder = {
+    let add_folder = {
+        let mut folders = state.folders.clone();
         let mut index = 1;
         let mut name = format!("New Folder {}", index);
-        for (_, f) in &folders {
+        let _dispatch= _dispatch.clone();
+        for (_, f) in folders.iter() {
             if f.name == name {
                 index += 1;
                 name = format!("New Folder {}", index);
             }
         }
-        let id = "".to_string();
-        let mut folder = Folder {
+        let id = uuid::Uuid::new_v4().to_string();
+        let folder = Folder {
             id: id.clone(),
             name,
             expanded: false,
             order: 0,
             color: None,
         };
+        folders.iter_mut().map(|(k, v)| v.order += 1);
         move || {
-            _dispatch.reduce_mut(|c| c.folders.insert(id, folder));
+            _dispatch.reduce_mut(|c| {
+                // TODO: Revisit this logic
+                
+            });
         }
     };
     html! {
       <a
-      class={classes!("flex", "py-3", "px-3", "items-center", "gap-3", "rounded-md", "hover:bg-gray-500/10", "transition-colors", "duration-200", "text-white", "text-sm", "mb-2", "flex-shrink-0", "border", "border-white/20", "transition-opacity", if generating {"cursor-not-allowed opacity-40"} else {"cursor-pointer opacity-100"}) }
-      onclick={let addFolder = addFolder.clone(); move |e| if !generating {addFolder()}}
+      class={classes!("flex", "py-3", "px-3", "items-center", "gap-3", "rounded-md", "hover:bg-gray-500/10", "transition-colors", "duration-200", "text-white", "text-sm", "mb-2", "flex-shrink-0", "border", "border-white/20", "transition-opacity", if state.generating {"cursor-not-allowed opacity-40"} else {"cursor-pointer opacity-100"}) }
+      onclick={
+            let state = state.clone();
+            let add_folder = add_folder.clone();
+            move |e| {
+                if !state.generating {
+                    add_folder()
+                }
+            }
+      }
     >
       <NewFolderIcon />
     </a>
@@ -122,15 +134,21 @@ pub fn Menu() -> Html {
           </div>
         </div>
         <div
-          id="menu-close"
-          class={classes!("md:hidden", "absolute", "z-[999]", "right-0", "translate-x-full", "top-10", "bg-gray-900", "p-2", "cursor-pointer", "hover:bg-black", "text-white", if *hide_side_menu {"hidden"} else {""})}
-          onclick={|e| {}}
+            id="menu-close"
+            class={classes!("md:hidden", "absolute", "z-[999]", "right-0", "translate-x-full", "top-10", "bg-gray-900", "p-2", "cursor-pointer", "hover:bg-black", "text-white", if *hide_side_menu {"hidden"} else {""})}
+            onclick={
+                let hide_side_menu = hide_side_menu.clone(); 
+                move |_e| hide_side_menu.set(true) 
+            }
         >
           <CrossIcon2 />
         </div>
         <div
-          class={classes!("group/menu", "md:group-hover/menu:opacity-100", "max-md:hidden", "transition-opacity", "absolute", "z-[999]", "right-0", "translate-x-full", "top-10", "bg-gray-900", "p-2", "cursor-pointer", "hover:bg-black", "text-white", if *hide_side_menu {"opacity-100"} else {"opacity-0 rotate-90"})}
-          onclick={|e| {}}
+            class={classes!("group/menu", "md:group-hover/menu:opacity-100", "max-md:hidden", "transition-opacity", "absolute", "z-[999]", "right-0", "translate-x-full", "top-10", "bg-gray-900", "p-2", "cursor-pointer", "hover:bg-black", "text-white", if *hide_side_menu {"opacity-100"} else {"opacity-0 rotate-90"})}
+            onclick={ 
+                let hide_side_menu = hide_side_menu.clone(); 
+                move |_e| hide_side_menu.set(!*hide_side_menu) 
+            }
         >
           if *hide_side_menu {
             <MenuIcon />
@@ -143,7 +161,10 @@ pub fn Menu() -> Html {
       <div
         id="menu-backdrop"
         class={classes!("md:hidden", "fixed", "top-0", "left-0", "h-full", "w-full", "z-[60]", "bg-gray-900/70", if *hide_side_menu {"hidden"} else {""})}
-        onclick={|e| {}}
+        onclick={
+            let hide_side_menu = hide_side_menu.clone(); 
+            move |_e| hide_side_menu.set(true)
+        }
       />
     </>
     }

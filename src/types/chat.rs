@@ -110,7 +110,7 @@ impl Default for ConfigInterface {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChatHistoryInterface {
     pub(crate) title: String,
     pub(crate) index: i32,

@@ -15,8 +15,8 @@ use yewdux::use_store;
 
 #[derive(Debug, Properties, PartialEq)]
 pub struct ChatFolderProps {
-    folder_id: String,
-    folder_chats: Vec<ChatHistoryInterface>,
+    pub folder_id: String,
+    pub folder_chats: Vec<ChatHistoryInterface>,
 }
 #[function_component]
 pub fn ChatFolder(
@@ -25,15 +25,14 @@ pub fn ChatFolder(
         folder_chats,
     }: &ChatFolderProps,
 ) -> Html {
-    let (state, _dispatch) = use_store::<ChatSlice>();
-    let _folder_name = state.folders[folder_id].name.clone();
-    let folder_color = state.folders[folder_id].color.clone();
-    let _is_expanded = state.folders[folder_id].expanded;
-    let folderChats: Vec<ChatHistoryInterface> = vec![];
+    let (store, _dispatch) = use_store::<ChatSlice>();
+    // let folder_chats =  folder_chats.clone();
+    let folder_name = use_state(|| store.folders[folder_id].name.clone());
+    let color = use_state(|| store.folders[folder_id].color.clone());
+    let is_expanded = use_state(|| store.folders[folder_id].expanded);
     let input_ref = use_node_ref();
     let folder_ref = use_node_ref();
     let gradient_ref = use_node_ref();
-    let folder_name = use_state(|| _folder_name);
     let is_edit = use_state(|| false);
     let is_delete = use_state(|| false);
     let is_hover = use_state(|| false);
@@ -43,9 +42,10 @@ pub fn ChatFolder(
         let _dispatch = _dispatch.clone();
         let is_edit = is_edit.clone();
         let folder_name = folder_name.clone();
+        let folder_id: String = folder_id.clone();
         move || {
             _dispatch.reduce_mut(|d| {
-                if let Some(f) = d.folders.get_mut(folder_id) {
+                if let Some(f) = d.folders.get_mut(&folder_id) {
                     f.name = (*folder_name).clone();
                 }
             });
@@ -55,8 +55,9 @@ pub fn ChatFolder(
     let delete_folder = {
         let _dispatch = _dispatch.clone();
         let is_delete = is_delete.clone();
+        let folder_id: String = folder_id.clone();
         move || {
-            _dispatch.reduce_mut(|d| d.folders.remove(folder_id));
+            _dispatch.reduce_mut(|d| d.folders.remove(&folder_id));
             is_delete.set(true);
         }
     };
@@ -66,9 +67,9 @@ pub fn ChatFolder(
         move |color: Option<String>| {
             _dispatch.reduce_mut(|s| {
                 if color.is_some() {
-                  if let Some(c) = s.folders.get_mut(folder_id) {
-                    c.color = color;
-                  }
+                    if let Some(c) = s.folders.get_mut(folder_id) {
+                        c.color = color;
+                    }
                 } else {
                     s.folders.remove(folder_id);
                 }
@@ -77,19 +78,141 @@ pub fn ChatFolder(
     };
     let onclick_fn = {
         let update_color = update_color.clone();
-        let color = folder_color.clone();
+        let color = color.clone();
         // Callback::from(move |e| update_color(color))
         |e| {}
     };
-    let handle_drop = { |e| {} };
 
-    let handleDragOver = { |e| {} };
+    let handle_drop = {
+        let is_hover = is_hover.clone();
+        let folder_id = folder_id.clone();
+        let _dispatch = _dispatch.clone();
+        move |e: DragEvent| {
+            e.stop_propagation();
+            is_hover.set(false);
+            // expand folder on drop
+            _dispatch.reduce_mut(|f| {
+                if let Some(folder) = f.folders.get_mut(&folder_id) {
+                    folder.expanded = true;
+                }
+                let chat_index = e
+                    .data_transfer()
+                    .unwrap()
+                    .get_data("chatIndex")
+                    .unwrap()
+                    .parse::<usize>()
+                    .unwrap();
+                f.chats[chat_index].folder = Some(folder_id.clone());
+            });
+        }
+    };
 
-    let handleDragLeave = { |e| {} };
-    let handleKeyDown = { |e| {} };
-    let handleTick = { |e| {} };
-    let handleCross = { |e| {} };
-    let toggleExpanded = { |e| {} };
+    let handleDragOver = {
+        let is_hover = is_hover.clone();
+        move |e: DragEvent| {
+            e.prevent_default();
+            e.stop_propagation();
+            is_hover.set(true);
+        }
+    };
+
+    let handleDragLeave = {
+        let is_hover = is_hover.clone();
+        move |_| is_hover.set(false)
+    };
+
+    let handleKeyDown = {
+        let edit_title = edit_title.clone();
+        move |e: KeyboardEvent| {
+            if e.key() == "Enter" {
+                edit_title();
+            }
+        }
+    };
+    let handleTick = {
+        let is_edit = is_edit.clone();
+        let is_delete = is_delete.clone();
+        let edit_title = edit_title.clone();
+        let delete_folder = delete_folder.clone();
+        move |e: MouseEvent| {
+            e.stop_propagation();
+            if *is_edit {
+                edit_title();
+            } else if *is_delete {
+                delete_folder();
+            }
+        }
+    };
+    let handleCross = {
+        let is_edit = is_edit.clone();
+        let is_delete = is_delete.clone();
+        move |_e| {
+            is_edit.set(false);
+            is_delete.set(false);
+        }
+    };
+
+    let toggleExpanded = {
+        let _dispatch = _dispatch.clone();
+        let folder_id = folder_id.clone();
+        move |_e| {
+            _dispatch.reduce_mut(|f| {
+                if let Some(folder) = f.folders.get_mut(&folder_id) {
+                    folder.expanded = !folder.expanded;
+                }
+            })
+        }
+    };
+
+    {
+        let input_ref = input_ref.clone();
+        let is_edit = is_edit.clone();
+
+        use_effect_with(is_edit, move |_| {
+            if let Some(input) = input_ref.cast::<web_sys::HtmlInputElement>() {
+                input
+                    .focus()
+                    .unwrap_or_else(|_| log::warn!("Failed to focus input"));
+            }
+            || ()
+        });
+    }
+
+    let on_mouse_enter = {
+        let color = color.clone();
+        let folder_ref = folder_ref.clone();
+        let gradient_ref = gradient_ref.clone();
+        move |_e| {
+            if let Some(folder) = folder_ref.cast::<web_sys::HtmlElement>() {
+                if color.is_none() {
+                    return;
+                }
+                let color = color.as_ref().unwrap().clone();
+                folder.set_attribute("style", &format!("background: {}dd", color));
+            }
+            if let Some(grad) = gradient_ref.cast::<web_sys::HtmlElement>() {
+                grad.set_attribute("style", "width: '0px'");
+            }
+        }
+    };
+
+    let on_mouse_leave = {
+        let color = color.clone();
+        let folder_ref = folder_ref.clone();
+        let gradient_ref = gradient_ref.clone();
+        move |_e| {
+            if let Some(folder) = folder_ref.cast::<web_sys::HtmlElement>() {
+                if color.is_none() {
+                    return;
+                }
+                let color = color.as_ref().unwrap().clone();
+                folder.set_attribute("style", &format!("background: {}", color));
+            }
+            if let Some(grad) = gradient_ref.cast::<web_sys::HtmlElement>() {
+                grad.set_attribute("style", "width: '1rem'");
+            }
+        }
+    };
     html! {
         <div
       class={classes!("w-full", "transition-colors", "group/folder", if *is_hover {"bg-gray-800/40"} else {""})}
@@ -99,27 +222,11 @@ pub fn ChatFolder(
     >
       <div
         // style={{ background: color || "" }}
-        class={classes!("transition-colors", "flex", "py-2", "pl-2", "pr-1", "items-center", "gap-3", "relative", "rounded-md", "break-all", "cursor-pointer", "parent-sibling", if folder_color.clone().is_some()  {""} else {"hover:bg-gray-850"})}
-        onclick={toggleExpanded}
+        class={classes!("transition-colors", "flex", "py-2", "pl-2", "pr-1", "items-center", "gap-3", "relative", "rounded-md", "break-all", "cursor-pointer", "parent-sibling", if color.clone().is_some()  {""} else {"hover:bg-gray-850"})}
+        onclick={toggleExpanded.clone()}
         ref={folder_ref}
-        onmouseenter={
-            |e| {
-                // if (color && folderRef.current) {
-                //     folderRef.current.style.background = format!("{}dd", _color);
-                // }
-                // if (gradientRef.current) {
-                //     gradientRef.current.style.width = "0px";
-                // }
-            }
-        }
-        onmouseleave={
-            |e| {
-                // if (color && folderRef.current) {
-                //     folderRef.current.style.background = color;
-                // }
-                // if (gradientRef.current){ gradientRef.current.style.width = "1rem";}
-            }
-        }
+        onmouseenter={on_mouse_enter}
+        onmouseleave={on_mouse_leave}
       >
         <FolderIcon />
         <div class="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative">
@@ -129,7 +236,7 @@ pub fn ChatFolder(
               class="focus:outline-blue-600 text-sm border-none bg-transparent p-0 m-0 w-full"
               value={(*folder_name).clone()}
               onchange={ |e| {}}
-              onclick={|e| {}}
+            //   onclick={ |e: Event| e.stop_propagation() }
               onkeydown={handleKeyDown}
               ref={input_ref}
             />
@@ -178,7 +285,7 @@ pub fn ChatFolder(
                   class="p-1 hover:text-white"
                   onclick={
                     let pallete = pallete.clone();
-                    move |e| pallete.set(false)
+                    move |_| pallete.set(false)
                   }
                   aria-label="folder color"
                 >
@@ -192,7 +299,7 @@ pub fn ChatFolder(
                         html! {
                             <button
                           key={*c}
-                        //   style={{ background: c }}
+                          style={format!("background: {}", c)}
                           class="hover:scale-90 transition-transform h-4 w-4 rounded-full"
                           onclick={
                             // let update_color = update_color.clone();
@@ -205,7 +312,7 @@ pub fn ChatFolder(
                       }).collect::<Html>()
                     }
                       <button
-                        onclick={ onclick_fn}
+                        onclick={ onclick_fn }
                         aria-label="default color"
                       >
                         <RefreshIcon />
@@ -233,11 +340,11 @@ pub fn ChatFolder(
               </button>
               <button
                 class="p-1 hover:text-white"
-                onclick={toggleExpanded}
+                onclick={toggleExpanded.clone()}
                 aria-label="expand folder"
               >
                 <DownChevronArrow
-                  class_name={classes!("transition-transform", if _is_expanded {"rotate-180"} else {""}) }
+                  class_name={classes!("transition-transform", if *is_expanded {"rotate-180"} else {""}) }
                 />
               </button>
             </>
@@ -245,10 +352,10 @@ pub fn ChatFolder(
         </div>
       </div>
       <div class="ml-3 pl-1 border-l-2 border-gray-700 flex flex-col gap-1 parent">
-        if _is_expanded {
+        if *is_expanded {
             <NewChat folder={Some(folder_id.clone())} />
             {
-              folderChats.iter().map(|chat|
+                folder_chats.iter().map(|chat|
                 html! {
                     <ChatHistory
                     title={chat.title.clone()}

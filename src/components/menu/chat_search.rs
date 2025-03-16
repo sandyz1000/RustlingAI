@@ -5,12 +5,12 @@ use yewdux::use_store;
 use crate::{components::search_bar::SearchBar, store::slice::ChatSlice};
 #[derive(Debug, Properties, PartialEq)]
 pub struct ChatSearchProp {
-    filter: String
+    pub filter: UseStateHandle<String>
 }
 
 #[function_component]
 pub fn ChatSearch(ChatSearchProp {filter}: &ChatSearchProp) -> Html {
-    let filter = use_state(|| filter.clone());
+    let filter = filter.clone();
     let (state, _) = use_store::<ChatSlice>();
     let generating = state.generating;
     let value = use_state(|| "".to_string());

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
 use crate::{
     components::menu::{
@@ -27,7 +27,7 @@ pub fn ChatHistoryList() -> Html {
     let current_chat_index = use_state(|| store.curr_chat_index);
     let isHover = use_state(|| false);
     let filter = use_state(|| "".to_string());
-    let chat_folders = use_state(|| Vec::<ChatHistoryFolderInterface>::new());
+    let chat_folders = use_state(|| ChatHistoryFolderInterface::new());
     let no_chat_folders = use_state(|| Vec::<ChatHistoryInterface>::new());
 
     // Refs
@@ -49,7 +49,7 @@ pub fn ChatHistoryList() -> Html {
             let folders = store.folders.clone();
 
             // Sort folders
-            let mut sorted_folders: Vec<Folder> = folders.values().collect();
+            let mut sorted_folders: Vec<Folder> = folders.values().map(|f| f.clone()).collect();
             sorted_folders.sort_by_key(|f| f.order);
 
             // Process chats
@@ -65,14 +65,14 @@ pub fn ChatHistoryList() -> Html {
 
                 if !chat_title.contains(&filter_lower)
                     && !folder_name.contains(&filter_lower)
-                    && index != store.current_chat_index
+                    && index as i32 != store.curr_chat_index
                 {
                     continue;
                 }
 
                 let entry = ChatHistoryInterface {
-                    title: chat.title.clone(),
-                    index,
+                    title: chat.title.as_ref().unwrap().clone(),
+                    index: index as i32,
                     id: chat.id.clone(),
                 };
 
@@ -94,27 +94,28 @@ pub fn ChatHistoryList() -> Html {
 
     // Store subscription effect
     {
-        let store_dispatch = store_dispatch.clone();
+        let store_dispatch: Dispatch<ChatSlice> = store_dispatch.clone();
         let store = store.clone();
         let update_folders = update_folders.clone();
         let chats_ref = chats_ref.clone();
         let folders_ref = folders_ref.clone();
 
+        // TODO: Verify if this working correctly
         use_effect_with((), move |_| {
             let unsubscribe = store_dispatch.subscribe({
-                let store = store.clone();
-                move |cs| {
-                    if store.chats != *chats_ref && !store.generating {
+                // let store = store.clone();
+                move |store: std::rc::Rc<ChatSlice>| {
+                    if store.chats != *chats_ref.borrow() && !store.generating {
                         update_folders();
-                        chats_ref.borrow_mut() = store.chats.clone();
-                    } else if store.folders != *folders_ref {
+                        *chats_ref.borrow_mut() = store.chats.clone();
+                    } else if store.folders != *folders_ref.borrow() {
                         update_folders();
-                        folders_ref.borrow_mut() = store.folders.clone();
+                        *folders_ref.borrow_mut() = store.folders.clone();
                     }
                 }
             });
 
-            || unsubscribe()
+            || ()
         });
     }
 
@@ -134,7 +135,7 @@ pub fn ChatHistoryList() -> Html {
                     .set_title(&titles[(*index) as usize]);
 
                 // Expand folder
-                let chat = store.chats[*index as usize];
+                let chat = &store.chats[*index as usize];
 
                 if let Some(folder_id) = &chat.folder {
                     let mut folders = store.folders.clone();
@@ -150,31 +151,37 @@ pub fn ChatHistoryList() -> Html {
     }
 
     let handleDrop = {
-        let chats_index = 0;
         let store_dispatch = store_dispatch.clone();
-        move |e| {
-            store_dispatch.reduce_mut(|s| s.chats[chats_index as usize].folder.take());
+        move |e: DragEvent| {
+            if e.data_transfer().is_some() {
+                e.stop_propagation();
+                if let Ok(chat_index) = e.data_transfer().unwrap()
+                    .get_data("chatIndex")
+                    .map(|s| s.parse::<usize>().ok().unwrap()) {
+                    store_dispatch.reduce_mut(|s| s.chats[chat_index].folder.take());
+                }
+            }
         }
     };
 
     let handleDragOver = {
         let isHover = isHover.clone();
-        |e| {
-            e.prevent_default();
+        move |_e: DragEvent| {
+            _e.prevent_default();
             isHover.set(true);
         }
     };
 
     let handleDragLeave = {
         let isHover = isHover.clone();
-        |e| {
+        move |_e: DragEvent| {
             isHover.set(false);
         }
     };
 
     let handleDragEnd = {
         let isHover = isHover.clone();
-        move |e| {
+        move |_e| {
             isHover.set(false);
         }
     };
@@ -186,16 +193,16 @@ pub fn ChatHistoryList() -> Html {
       ondragleave={handleDragLeave}
       ondragend={handleDragEnd}
     >
-      <ChatSearch filter={filter} setFilter={setFilter} />
+      <ChatSearch filter={filter.clone()} />
       <div class="flex flex-col gap-2 text-gray-100 text-sm">
 
         {
-            chat_folders.iter().map(|s| {
+            chat_folders.iter().map(|(id, chat_histories)| {
                 html!{
                     <ChatFolder
-                      folderChats={chatFolders[folderId]}
-                      folderId={folderId}
-                      key={folderId}
+                        folder_id={ id.clone() }
+                        folder_chats={ (*chat_histories).clone() }
+                    //   key={folderId}
                     />
                 }
             }).collect::<Html>()
@@ -203,7 +210,7 @@ pub fn ChatHistoryList() -> Html {
         {
             no_chat_folders.iter().map(|c| {
                 html!{
-                    <ChatHistory title={c.title} key={format!("{}-{}", c.title, c.id)} chatIndex={c.index} />
+                    <ChatHistory title={c.title.clone()} key={format!("{}-{}", c.title, c.id)} chat_index={c.index} />
                 }
             }).collect::<Html>()
         }
@@ -237,7 +244,7 @@ pub struct ScrollToBottomProps {
     pub debug: bool, // Debug logs
 
     #[prop_or_default]
-    pub follow_button_class_name: Option<String>, // Follow button class
+    pub follow_button_class_name: String, // Follow button class
 
     #[prop_or(String::from("smooth"))]
     pub initial_scroll_behavior: String, // "auto" or "smooth"
@@ -266,6 +273,7 @@ pub struct ScrollerParams {
     pub scroll_top: u32,
 }
 
+// TODO: Revisit and fix this
 #[function_component]
 pub fn ScrollToBottom(props: &ScrollToBottomProps) -> Html {
     let node_ref = use_node_ref();
@@ -354,7 +362,7 @@ pub fn ScrollToBottom(props: &ScrollToBottomProps) -> Html {
                 { for props.children.iter() }
             </div>
             if !*is_sticky {
-                <button class={props.follow_button_class_name.clone().unwrap_or_default()} onclick={scroll_to_target}>
+                <button class={props.follow_button_class_name.clone()} onclick={scroll_to_target}>
                     { "Scroll to " } { if props.mode == "bottom" { "Bottom" } else { "Top" } }
                 </button>
             }

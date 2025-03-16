@@ -2,7 +2,17 @@ use yew::prelude::*;
 use yewdux::use_store;
 
 use crate::{
-    components::{chat::{FrequencyPenaltySlider, MaxTokenSlider, ModelSelector, PresencePenaltySlider, TemperatureSlider, TopPSlider}, popup_modal::PopupModal}, constants::DEFAULT_SYSTEM_MESSAGE, hooks::translation::use_translation, store::slice::ConfigSlice, types::chat::{ConfigInterface, ModelOptions}
+    components::{
+        chat::config_menu::{
+            FrequencyPenaltySlider, MaxTokenSlider, ModelSelector, PresencePenaltySlider,
+            TemperatureSlider, TopPSlider,
+        },
+        popup_modal::PopupModal,
+    },
+    constants::DEFAULT_SYSTEM_MESSAGE,
+    hooks::translation::use_translation,
+    store::slice::ConfigSlice,
+    types::chat::{ConfigInterface, ModelOptions},
 };
 
 #[function_component]
@@ -56,7 +66,7 @@ pub(crate) fn ChatConfigPopup(ConfigPopupProps { set_is_modal_open }: &ConfigPop
         let pres_penalty = pres_penalty.clone();
         let freq_penalty = freq_penalty.clone();
         let system_message = system_message.clone();
-        move |val| {
+        move |_val| {
             _dipatch.reduce_mut(|c| {
                 c.default_chat_config = ConfigInterface {
                     model: (*model).clone(),
@@ -66,7 +76,7 @@ pub(crate) fn ChatConfigPopup(ConfigPopupProps { set_is_modal_open }: &ConfigPop
                     top_p: *top_p,
                     frequency_penalty: *freq_penalty,
                 };
-                
+
                 c.default_system_message = (*system_message).clone();
             });
         }
@@ -79,7 +89,7 @@ pub(crate) fn ChatConfigPopup(ConfigPopupProps { set_is_modal_open }: &ConfigPop
         let pres_penalty = pres_penalty.clone();
         let freq_penalty = freq_penalty.clone();
         let system_message = system_message.clone();
-        move |e| {
+        move |_e| {
             let default_chat_config = ConfigInterface::default();
             model.set(default_chat_config.model);
             max_tokens.set(default_chat_config.max_tokens);
@@ -125,7 +135,7 @@ struct SystemChatProps {
 }
 
 #[function_component]
-fn DefaultSystemChat(SystemChatProps { system_message } : &SystemChatProps) -> Html {
+fn DefaultSystemChat(SystemChatProps { system_message }: &SystemChatProps) -> Html {
     let t = use_translation(vec!["model".to_string()]);
     let set_system_message = {
         let system_message = system_message.clone();
@@ -136,28 +146,33 @@ fn DefaultSystemChat(SystemChatProps { system_message } : &SystemChatProps) -> H
             }
         }
     };
-    
+
     let handle_input = Callback::from(|e: InputEvent| {
         if let Some(target) = e.target_dyn_into::<web_sys::HtmlTextAreaElement>() {
-            // target.set_attribute(name, value)
-            // target.set_style("height", "auto");
-            // target.set_style("height", &format!("{}px", target.scroll_height()));
-            // target.set_style("max-height", &format!("{}px", target.scroll_height()));
+            let attr_val = format!(
+                "height: {};  max-height: {}",
+                "auto",
+                target.scroll_height()
+            );
+            target.set_attribute("style", &attr_val);
         }
     });
 
     let handle_on_focus = Callback::from(|e: FocusEvent| {
         if let Some(target) = e.target_dyn_into::<web_sys::HtmlTextAreaElement>() {
-            // target.set_style("height", "auto");
-            // target.set_style("height", &format!("{}px", target.scroll_height()));
-            // target.set_style("max-height", &format!("{}px", target.scroll_height()));
+            let attr_val = format!(
+                "height: {};  max-height: {}",
+                "auto",
+                target.scroll_height()
+            );
+            target.set_attribute("style", &attr_val);
         }
     });
 
     let handle_on_blur = Callback::from(|e: FocusEvent| {
         if let Some(target) = e.target_dyn_into::<web_sys::HtmlTextAreaElement>() {
-            // target.set_style("height", "auto");
-            // target.set_style("max-height", "2.5rem");
+            let attr_val = format!("height: {};  max-height: {}", "auto", "2.5rem");
+            target.set_attribute("style", &attr_val);
         }
     });
     html! {

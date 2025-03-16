@@ -12,7 +12,7 @@ pub(crate) mod button;
 use super::icons::SendIcon;
 use crate::{
     components::{
-        icons::{CrossIcon, DownArrow}, mobile_bar::MobileBar, share_gpt::ShareGPT, stop_gen_btn::StopGeneratingButton
+        icons::{CrossIcon, DownArrow}, menu::chat_histories::ScrollToBottom, mobile_bar::MobileBar, share_gpt::ShareGPT, stop_gen_btn::StopGeneratingButton, chat::message::Message
     },
     hooks::translation::use_translation,
     store::slice::{ChatSlice, ConfigSlice, InputSlice},
@@ -195,7 +195,7 @@ pub(crate) fn ChatContent() -> Html {
     html! {
       <div class="flex-1 overflow-hidden">
         <ScrollToBottom
-          class_name="h-full dark:bg-gray-800" follow_btn_class="hidden"
+          class_name="h-full dark:bg-gray-800" follow_button_class_name="hidden"
         >
           <ScrollToBottomButton />
           <div class="flex flex-col items-center text-sm dark:bg-gray-800">
@@ -214,15 +214,15 @@ pub(crate) fn ChatContent() -> Html {
                     html! {
                         if *advance_mode || index != 0 || message.role != "system" {
                             <div key={index}>
-                            <Message
-                              role={message.role}
-                              content={message.content}
-                              messageIndex={index}
-                            />
-                            if !generating && advancedMode {
-                                <NewMessageButton messageIndex={index} />
-                            }
-                          </div
+                                <Message
+                                role={message.role}
+                                content={message.content}
+                                messageIndex={index}
+                                />
+                                if !generating && advancedMode {
+                                    <NewMessageButton messageIndex={index} />
+                                }
+                            </div>
                         } else {
                             <></>
                         }

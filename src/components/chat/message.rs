@@ -6,10 +6,10 @@ use crate::{components::chat::{avatar::Avatar, content_view::ContentView, edit_v
 #[derive(Debug, PartialEq, Properties)]
 pub struct MessageProps {
     pub role: Role,
-    content: String,
-    message_index: i32,
+    pub content: String,
+    pub message_index: i32,
     #[prop_or(false)]
-    sticky: bool,
+    pub sticky: bool,
 }
 
 const BACKGROUND_STYLE: [&str; 2] = ["dark:bg-gray-800", "bg-gray-50 dark:bg-gray-650"];
@@ -38,7 +38,7 @@ pub fn Message(
             if *advanced_mode {
                 <RoleSelector
                     role={role}
-                    messageIndex={messageIndex}
+                    message_index={message_index}
                     sticky={sticky}
                 />
             }
@@ -46,7 +46,7 @@ pub fn Message(
             <MessageContent
               role={role}
               content={content}
-              messageIndex={messageIndex}
+              message_index={message_index}
               sticky={sticky}
             />
           </div>

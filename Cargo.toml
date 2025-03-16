@@ -33,7 +33,7 @@ pulldown-cmark = "0.13.0"
 log = "0.4.26"
 chrono = "0.4.40"
 rust-i18n = "3"
-uuid = "*"
+uuid = {version = "1.16.0", features = ["v4"]}
 
 [dependencies.web-sys]
 version = "0.3"
