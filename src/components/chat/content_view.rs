@@ -91,7 +91,7 @@ pub fn ContentView(
                     .messages
                     .remove(messeges.len() - 1)
             });
-            handle_submit();
+            handle_submit.emit(());
         }
     };
 

@@ -28,8 +28,8 @@ pub(crate) fn Api() -> Html {
           class="flex py-2 px-2 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
           id="api-menu"
           onclick={
-            let setIsModalOpen = set_is_modal_open.clone();
-            move |_e| setIsModalOpen(true)
+            let set_is_modal_open = set_is_modal_open.clone();
+            move |_e| set_is_modal_open(true)
           }
         >
           <PersonIcon />
@@ -181,7 +181,7 @@ pub struct EndpointSelectorProps {
 pub(crate) fn ApiEndpointSelector(
     EndpointSelectorProps { api_endpoint }: &EndpointSelectorProps,
 ) -> Html {
-    let (drop_down, dropDownRef) = use_hideon_outside_click();
+    let (drop_down, drop_down_ref) = use_hideon_outside_click();
     html! {
       <div class="w-[40vw] relative flex-1">
         <button
@@ -198,7 +198,7 @@ pub(crate) fn ApiEndpointSelector(
         </button>
         <div
           id="dropdown"
-          ref={dropDownRef}
+          ref={drop_down_ref}
           class={classes!("absolute", "top-100", "bottom-100", "z-10", "bg-white", "rounded-lg", "shadow-xl", "border-b", "border-black/10", "dark:border-gray-900/50", "text-gray-800", "dark:text-gray-100", "group", "dark:bg-gray-800", "opacity-90", "w-32", "w-full", if *drop_down {""} else {"hidden"}) }
         >
           <ul

@@ -1,9 +1,9 @@
 use std::{collections::HashMap, hash::Hash};
 
 use crate::{
-    components::menu::{
+    components::{icons::DownArrow, menu::{
         chat_folder::ChatFolder, chat_history::ChatHistory, chat_search::ChatSearch,
-    },
+    }},
     store::slice::ChatSlice,
     types::chat::{ChatHistoryFolderInterface, ChatHistoryInterface, Folder},
 };
@@ -25,7 +25,7 @@ pub fn ChatHistoryList() -> Html {
             .collect::<Vec<String>>()
     });
     let current_chat_index = use_state(|| store.curr_chat_index);
-    let isHover = use_state(|| false);
+    let is_hover = use_state(|| false);
     let filter = use_state(|| "".to_string());
     let chat_folders = use_state(|| ChatHistoryFolderInterface::new());
     let no_chat_folders = use_state(|| Vec::<ChatHistoryInterface>::new());
@@ -150,7 +150,7 @@ pub fn ChatHistoryList() -> Html {
         });
     }
 
-    let handleDrop = {
+    let handle_drop = {
         let store_dispatch = store_dispatch.clone();
         move |e: DragEvent| {
             if e.data_transfer().is_some() {
@@ -164,34 +164,34 @@ pub fn ChatHistoryList() -> Html {
         }
     };
 
-    let handleDragOver = {
-        let isHover = isHover.clone();
+    let handle_drag_over = {
+        let is_hover = is_hover.clone();
         move |_e: DragEvent| {
             _e.prevent_default();
-            isHover.set(true);
+            is_hover.set(true);
         }
     };
 
-    let handleDragLeave = {
-        let isHover = isHover.clone();
+    let handle_drag_leave = {
+        let is_hover = is_hover.clone();
         move |_e: DragEvent| {
-            isHover.set(false);
+            is_hover.set(false);
         }
     };
 
-    let handleDragEnd = {
-        let isHover = isHover.clone();
+    let handle_drag_end = {
+        let is_hover = is_hover.clone();
         move |_e| {
-            isHover.set(false);
+            is_hover.set(false);
         }
     };
     html! {
         <div
-      class={classes!("flex-col", "flex-1", "overflow-y-auto", "hide-scroll-bar", "border-b", "border-white/20", if *isHover {"bg-gray-800/40"} else {""})}
-      ondrop={handleDrop}
-      ondragover={handleDragOver}
-      ondragleave={handleDragLeave}
-      ondragend={handleDragEnd}
+      class={classes!("flex-col", "flex-1", "overflow-y-auto", "hide-scroll-bar", "border-b", "border-white/20", if *is_hover {"bg-gray-800/40"} else {""})}
+      ondrop={handle_drop}
+      ondragover={handle_drag_over}
+      ondragleave={handle_drag_leave}
+      ondragend={handle_drag_end}
     >
       <ChatSearch filter={filter.clone()} />
       <div class="flex flex-col gap-2 text-gray-100 text-sm">
@@ -272,6 +272,22 @@ pub struct ScrollerParams {
     pub scroll_height: u32,
     pub scroll_top: u32,
 }
+
+#[function_component]
+pub(crate) fn ScrollToBottomButton() -> Html {
+    let scroll_btm = |e: MouseEvent| {};
+    let at_bottom = use_state(|| false);
+    html! {
+      <button
+        class={classes!("cursor-pointer", "absolute", "right-6", "bottom-[60px]", "md:bottom-[60px]", "z-10", "rounded-full", "border", "border-gray-200", "bg-gray-50", "text-gray-600", "dark:border-white/10", "dark:bg-white/10", "dark:text-gray-200", if *at_bottom {"hidden"} else {""}) }
+        aria-label="scroll to bottom"
+        onclick={scroll_btm}
+      >
+        <DownArrow />
+      </button>
+    }
+}
+
 
 // TODO: Revisit and fix this
 #[function_component]

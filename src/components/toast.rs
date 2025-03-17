@@ -40,12 +40,12 @@ pub(crate) fn Toast() -> Html {
 }
 
 #[derive(Debug, Properties, PartialEq)]
-struct StatusIconProps {
-    status: ToastStatus,
+pub struct StatusIconProps {
+    pub status: ToastStatus,
 }
 
 #[function_component]
-pub(crate) fn StatusIcon(StatusIconProps { status }: &StatusIconProps) -> Html {
+pub fn StatusIcon(StatusIconProps { status }: &StatusIconProps) -> Html {
     match status {
         ToastStatus::Success => html! {<CheckIcon />},
         ToastStatus::Warning => html! {<WarningIcon />},

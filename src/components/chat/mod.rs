@@ -1,24 +1,30 @@
-pub(crate) mod message;
-pub(crate) mod config_menu;
 pub(crate) mod avatar;
-pub(crate) mod content_view;
-pub(crate) mod markdown;
-pub(crate) mod edit_view;
-pub(crate) mod code_block;
-pub(crate) mod role_selector;
-pub(crate) mod command_prompt;
 pub(crate) mod button;
+pub(crate) mod code_block;
+pub(crate) mod command_prompt;
+pub(crate) mod config_menu;
+pub(crate) mod content_view;
+pub(crate) mod edit_view;
+pub(crate) mod markdown;
+pub(crate) mod message;
+pub(crate) mod role_selector;
 
 use super::icons::SendIcon;
 use crate::{
     components::{
-        icons::{CrossIcon, DownArrow}, menu::chat_histories::ScrollToBottom, mobile_bar::MobileBar, share_gpt::ShareGPT, stop_gen_btn::StopGeneratingButton, chat::message::Message
+        chat::message::Message,
+        icons::CrossIcon,
+        menu::chat_histories::{ScrollToBottom, ScrollToBottomButton},
+        mobile_bar::MobileBar,
+        share_gpt::ShareGPT,
+        stop_gen_btn::StopGeneratingButton,
     },
     hooks::translation::use_translation,
     store::slice::{ChatSlice, ConfigSlice, InputSlice},
-    types::chat::ConfigInterface,
+    types::chat::{ConfigInterface, Role},
 };
 use config_menu::ConfigMenu;
+use message::NewMessageButton;
 use yew::prelude::*;
 use yewdux::prelude::*;
 
@@ -150,47 +156,32 @@ pub(crate) fn TextField() -> Html {
     }
 }
 
-#[function_component]
-pub(crate) fn ScrollToBottomButton() -> Html {
-    let scroll_btm = |e: MouseEvent| {};
-
-    html! {
-      <button
-        class={classes!("cursor-pointer", "absolute", "right-6", "bottom-[60px]", "md:bottom-[60px]", "z-10", "rounded-full", "border", "border-gray-200", "bg-gray-50", "text-gray-600", "dark:border-white/10", "dark:bg-white/10", "dark:text-gray-200", if atBottom {"hidden"} else {""}) }
-        aria-label="scroll to bottom"
-        onclick={scroll_btm}
-      >
-        <DownArrow />
-      </button>
-    }
-}
 
 #[function_component]
 pub(crate) fn ChatContent() -> Html {
-    let (input_state, _) = use_store::<InputSlice>();
-    let (chat_state, _) = use_store::<ChatSlice>();
-    let (config_state, _) = use_store::<ConfigSlice>();
-    let error = use_state(|| chat_state.error);
+    let (input_store, _) = use_store::<InputSlice>();
+    let (chat_store, _) = use_store::<ChatSlice>();
+    let (config_store, _) = use_store::<ConfigSlice>();
+    let input_role = use_state(|| input_store.input_role.clone());
+    let error = use_state(|| chat_store.error.clone());
     let sticky_index = use_state(|| 0);
     let messages = use_state(|| {
-        if !chat_state.chats.is_empty()
-            && chat_state.curr_chat_index >= 0
-            && chat_state.curr_chat_index < chat_state.chats.len() as i32
+        if !chat_store.chats.is_empty()
+            && chat_store.curr_chat_index >= 0
+            && chat_store.curr_chat_index < chat_store.chats.len() as i32
         {
-            let messages = chat_state
-                .chats[chat_state.curr_chat_index as usize]
-                .messages;
+            let messages = chat_store.chats[chat_store.curr_chat_index as usize].messages.clone();
             sticky_index.set(messages.len() as i32);
-            messages.clone()
+            messages
         } else {
             vec![]
         }
     });
-    
-    let advance_mode = use_state(|| config_state.advanced_mode);
-    let generating = use_state(|| chat_state.generating);
-    let hide_side_menu = use_state(|| config_state.hide_side_menu);
-    let save_ref = use_mut_ref(|| None::<web_sys::HtmlElement>);
+
+    let advance_mode = use_state(|| config_store.advanced_mode);
+    let generating = use_state(|| chat_store.generating);
+    let hide_side_menu = use_state(|| config_store.hide_side_menu);
+    let save_ref = use_node_ref();
 
     html! {
       <div class="flex-1 overflow-hidden">
@@ -207,20 +198,20 @@ pub(crate) fn ChatContent() -> Html {
                 <ChatTitle />
               }
               if !*generating && *advance_mode && messages.is_empty() {
-                  <NewMessageButton messageIndex={-1} />
+                  <NewMessageButton msg_index={-1} />
               }
               {
                 messages.iter().enumerate().map(|(index, message)| {
                     html! {
-                        if *advance_mode || index != 0 || message.role != "system" {
+                        if *advance_mode || index != 0 || message.role != Role::System {
                             <div key={index}>
                                 <Message
-                                role={message.role}
-                                content={message.content}
-                                messageIndex={index}
+                                role={message.role.clone()}
+                                content={message.content.clone()}
+                                message_index={index as i32}
                                 />
-                                if !generating && advancedMode {
-                                    <NewMessageButton messageIndex={index} />
+                                if !*generating && *advance_mode {
+                                    <NewMessageButton msg_index={index as i32} />
                                 }
                             </div>
                         } else {
@@ -232,7 +223,7 @@ pub(crate) fn ChatContent() -> Html {
             </div>
 
             <Message
-                role={inputRole}
+                role={(*input_role).clone()}
                 content=""
                 message_index={*sticky_index}
                 sticky={false}
@@ -244,7 +235,7 @@ pub(crate) fn ChatContent() -> Html {
                 </div>
                 <div
                   class="text-white absolute top-1 right-1 cursor-pointer"
-                  onclick={ |e| {} }
+                  onclick={ let error = error.clone(); move |_| error.set("".to_string()) }
                 >
                   <CrossIcon />
                 </div>

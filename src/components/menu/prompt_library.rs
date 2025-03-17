@@ -92,26 +92,25 @@ pub(crate) fn PromptLibraryMenuPopUp(
 
     fn handle_input(event: InputEvent) {
         if let Some(target) = event.target_dyn_into::<HtmlTextAreaElement>() {
+            let scroll_height = target.scroll_height();
+            let value = format!("height: 'auto {}px'; max-height: {}px ", &scroll_height, &scroll_height);
+            let _ = target.set_attribute("style", &value);
 
-            // target.style.height = "auto";
-            // target.style.height = `${e.target.scrollHeight}px`;
-            // target.style.maxHeight = `${e.target.scrollHeight}px`;
         }
     }
 
     fn handle_on_focus(event: FocusEvent) {
         if let Some(target) = event.target_dyn_into::<HtmlTextAreaElement>() {
-            // target.style().set_property("height", "auto").ok();
-            // let scroll_height = target.scroll_height();
-            // target.style().set_property("height", &format!("{}px", scroll_height)).ok();
-            // target.style().set_property("max-height", &format!("{}px", scroll_height)).ok();
+            let scroll_height = target.scroll_height();
+            let value = format!("height: 'auto {}px'; max-height: {}px ", &scroll_height, &scroll_height);
+            let _ = target.set_attribute("style", &value);
         }
     }
 
     fn handle_on_blur(event: FocusEvent) {
         if let Some(target) = event.target_dyn_into::<HtmlTextAreaElement>() {
-            // target.style().set_property("height", "auto").ok();
-            // target.style().set_property("max-height", "2.5rem").ok();
+            let value = format!("height: 'auto'; max-height: 2.5rem ");
+            let _ = target.set_attribute("style", &value);
         }
     }
 

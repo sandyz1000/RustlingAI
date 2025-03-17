@@ -5,13 +5,13 @@ use crate::{components::popup_modal::PopupModal, hooks::translation::use_transla
 
 #[function_component]
 pub fn ShareGPT() -> Html {
-    let isModalOpen = use_state(|| false);
+    let is_modal_open = use_state(|| false);
     let t = use_translation(vec![]);
     let (state, _dispath) = use_store::<ChatSlice>();
     let set_is_modal_open = {
-      let isModalOpen = isModalOpen.clone();
+      let is_modal_open = is_modal_open.clone();
       move |e| {
-        isModalOpen.set(e);
+        is_modal_open.set(e);
       }
     };
     let handle_confirm = {
@@ -30,7 +30,7 @@ pub fn ShareGPT() -> Html {
       >
         {t("postOnShareGPT.title".to_string(), None)}
       </button>
-      if *isModalOpen {
+      if *is_modal_open {
         <PopupModal
           { set_is_modal_open }
           title={t("postOnShareGPT.title".to_string(), None)}

@@ -66,7 +66,6 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
     };
 
     let delete_chat = {
-        
         let chat_store = chat_store.clone();
         let config_store = config_store.clone();
         let chat_config = chat_config.clone();
@@ -82,7 +81,7 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
             }
             if chats.is_empty() {
                 chats = vec![ChatInterface::new(
-                    None,
+                    "".to_string(),
                     None,
                     vec![],
                     Some((*chat_config).clone()),
@@ -95,25 +94,26 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
         }
     };
 
-    let handleDragStart = {
+    let handle_drag_start = {
         let chat_index = *chat_index as usize;
         move |e: DragEvent| {
             if e.data_transfer().is_some() {
-                e.data_transfer()
+                let _ = e
+                    .data_transfer()
                     .unwrap()
                     .set_data("chatIndex", &chat_index.to_string());
             }
         }
     };
-    let handleKeyDown = { 
+    let handle_key_down = {
         let edit_title = edit_title.clone();
         move |e: KeyboardEvent| {
             if e.key() == "Enter" {
                 edit_title();
             }
-        } 
+        }
     };
-    let handleTick = {
+    let handle_tick = {
         let is_edit = is_edit.clone();
         let is_delete = is_delete.clone();
         let edit_title = edit_title.clone();
@@ -122,19 +122,18 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
             e.stop_propagation();
             if *is_edit {
                 edit_title();
-            }  
-            else if *is_delete {
+            } else if *is_delete {
                 delete_chat();
             }
-        } 
+        }
     };
-    let handleCross = { 
+    let handle_cross = {
         let is_edit = is_edit.clone();
         let is_delete = is_delete.clone();
         move |_e| {
             is_edit.set(false);
             is_delete.set(false);
-        } 
+        }
     };
 
     {
@@ -142,7 +141,9 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
         let input_ref = input_ref.clone();
         use_effect_with(is_edit, move |_| {
             if let Some(input) = input_ref.cast::<web_sys::HtmlInputElement>() {
-                input.focus().unwrap_or_else(|_| log::warn!("Failed to focus input"));
+                input
+                    .focus()
+                    .unwrap_or_else(|_| log::warn!("Failed to focus input"));
             }
             || ()
         })
@@ -166,7 +167,7 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
             move |_e| if !generating { set_curr_chat_index(chat_index) }
         }
         draggable="true"
-        ondragstart={handleDragStart}
+        ondragstart={handle_drag_start}
       >
         <ChatIcon />
         <div class="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative" title={(*title).clone()}>
@@ -176,7 +177,7 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
               class="focus:outline-blue-600 text-sm border-none bg-transparent p-0 m-0 w-full"
               value={(*title).clone()}
               onchange={ on_change_edit }
-              onkeydown={handleKeyDown}
+              onkeydown={handle_key_down}
               ref={input_ref}
             />
           } else {
@@ -197,14 +198,14 @@ pub fn ChatHistory(ChatHistoryProps { title, chat_index }: &ChatHistoryProps) ->
                 <>
                 <button
                   class="p-1 hover:text-white"
-                  onclick={handleTick}
+                  onclick={handle_tick}
                   aria-label="confirm"
                 >
                   <TickIcon />
                 </button>
                 <button
                   class="p-1 hover:text-white"
-                  onclick={handleCross}
+                  onclick={handle_cross}
                   aria-label="cancel"
                 >
                   <CrossIcon />

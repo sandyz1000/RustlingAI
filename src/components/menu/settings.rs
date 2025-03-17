@@ -29,8 +29,8 @@ pub(crate) fn SettingsMenu() -> Html {
         <a
           class="flex py-2 px-2 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
           onclick={
-                let isModalOpen = is_modal_open.clone();
-                move |_e| isModalOpen.set(true)
+                let is_modal_open = is_modal_open.clone();
+                move |_e| is_modal_open.set(true)
             }
         >
           <SettingIcon class_name="w-4 h-4" /> {t("setting".to_string(), None)}
@@ -38,9 +38,9 @@ pub(crate) fn SettingsMenu() -> Html {
         if *is_modal_open {
           <PopupModal
             set_is_modal_open= {
-                let isModalOpen = is_modal_open.clone();
+                let is_modal_open = is_modal_open.clone();
                 move |val: bool| {
-                    isModalOpen.set(val);
+                    is_modal_open.set(val);
                 }
             }
             title={t("setting".to_string(), None)}
@@ -200,7 +200,8 @@ struct CostMapping {
 
 fn token_cost_to_cost(token_cost: &TokenUsage, model: &ModelOptions) -> i32 {
     // TODO: Fix me
-    todo!()
+    // todo!()
+    0
 }
 
 #[function_component]

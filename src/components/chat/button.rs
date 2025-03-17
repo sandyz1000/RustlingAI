@@ -5,7 +5,7 @@ use yewdux::use_store;
 use crate::{components::icons::{CopyIcon, DeleteIcon, DownChevronArrow, EditIcon2, FileTextIcon, MarkdownIcon, RefreshIcon, TickIcon}, store::slice::ConfigSlice};
 
 #[derive(Debug, Properties, PartialEq)]
-pub(crate) struct BaseButtonProps {
+pub struct BaseButtonProps {
     pub on_click: Callback<MouseEvent>,
     pub icon: Html,
     #[prop_or_default]
@@ -134,7 +134,7 @@ pub fn CopyButton(OnClickProps {on_click}: &OnClickProps) -> Html {
             on_click.emit(e);
             is_copied.set(true);
             let is_copied = is_copied.clone();
-            Timeout::new(3000, move || is_copied.set(false));
+            let _ = Timeout::new(3000, move || is_copied.set(false));
         }
     };
     html! {

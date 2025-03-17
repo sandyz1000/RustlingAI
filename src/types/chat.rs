@@ -57,16 +57,13 @@ pub struct ChatInterface {
 
 impl ChatInterface {
     pub fn new(
-        title: Option<String>,
+        title: String,
         folder: Option<String>,
         mut messages: Vec<MessageInterface>,
         config: Option<ConfigInterface>,
         default_sys_msg: String,
     ) -> Self {
-        let title = match title {
-            Some(t) => t,
-            None => "New Chat".to_string(),
-        };
+        let title = if !title.is_empty() { title } else {"New Chat".to_string()};
         if messages.is_empty() {
             messages = vec![MessageInterface {
                 role: Role::System,
@@ -168,13 +165,6 @@ impl std::str::FromStr for ModelOptions {
     }
 }
 
-// impl Iterator for ModelOptions {
-//     type Item = Self;
-
-//     fn next(&mut self) -> Option<Self> {
-//         todo!()
-//     }
-// }
 
 impl std::fmt::Display for ModelOptions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -385,7 +375,7 @@ impl Default for Prompt {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize)]
 pub enum Theme {
     #[default]
     Light,

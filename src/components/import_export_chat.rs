@@ -55,11 +55,10 @@ struct Alert {
 
 use serde_wasm_bindgen::from_value;
 fn deserialize_js_value<T: serde::de::DeserializeOwned>(
-  js_value: JsValue,
+    js_value: JsValue,
 ) -> Result<T, serde_wasm_bindgen::Error> {
-  from_value::<T>(js_value)
+    from_value::<T>(js_value)
 }
-
 
 #[function_component]
 pub(crate) fn ImportChat() -> Html {
@@ -67,7 +66,7 @@ pub(crate) fn ImportChat() -> Html {
     let alert = use_state(|| None::<Alert>);
     let input_ref = use_node_ref();
     let (store, dispatch) = use_store::<ChatSlice>();
-    
+
     let handle_file_upload = {
         let input_ref = input_ref.clone();
         let store = store.clone();
@@ -84,7 +83,7 @@ pub(crate) fn ImportChat() -> Html {
                 let onload = {
                     let reader = reader.clone();
                     let alert = alert.clone();
-                    let store= store.clone();
+                    let store = store.clone();
                     let dispatch = dispatch.clone();
                     wasm_bindgen::closure::Closure::wrap(Box::new(
                         move |e: web_sys::ProgressEvent| {
@@ -136,11 +135,12 @@ pub(crate) fn ImportChat() -> Html {
                                 }
                             }
                         },
-                    ) as Box<dyn FnMut(web_sys::ProgressEvent)>)
+                    )
+                        as Box<dyn FnMut(web_sys::ProgressEvent)>)
                 };
 
                 reader.set_onload(Some(onload.as_ref().unchecked_ref()));
-                reader.read_as_text(&file);                
+                let _ = reader.read_as_text(&file);
                 onload.forget();
 
                 let _ = reader.read_as_text(&file);
@@ -220,7 +220,7 @@ pub(crate) fn ImportChatOpenAI(ChatOpenAIProps { set_is_modal_open }: &ChatOpenA
     let (_toast, toast_dispatch) = use_store::<ToastSlice>();
     let (_, chat_dispatch) = use_store::<ChatSlice>();
     let handle_file_upload = {
-        let input_ref=  input_ref.clone();
+        let input_ref = input_ref.clone();
         // let toast = toast.clone();
         let toast_dispatch = toast_dispatch.clone();
         let chat_dispatch = chat_dispatch.clone();
@@ -241,36 +241,35 @@ pub(crate) fn ImportChatOpenAI(ChatOpenAIProps { set_is_modal_open }: &ChatOpenA
             }
             let file = file.unwrap();
             let onload = {
-                wasm_bindgen::closure::Closure::wrap(Box::new(
-                    move |e: ProgressEvent| {
-                      let parsed_data =
-                                deserialize_js_value::<Vec<OpenAIChat>>(file_reader.result().unwrap());
-                        
-                      if let Err(e) = parsed_data {
-                          log::error!("Error:");
-                          toast_dispatch.reduce_mut(|d| {
+                wasm_bindgen::closure::Closure::wrap(Box::new(move |e: ProgressEvent| {
+                    let parsed_data =
+                        deserialize_js_value::<Vec<OpenAIChat>>(file_reader.result().unwrap());
+
+                    if let Err(e) = parsed_data {
+                        log::error!("Error:");
+                        toast_dispatch.reduce_mut(|d| {
                             d.status = ToastStatus::Error;
                             d.message = "Invalid format!".to_string();
                             d.show = true;
-                          });
-                          
-                          return;
-                      }
-                      let chats = import_openai_chat_export(parsed_data.unwrap());
-                      chat_dispatch.reduce_mut(|c| c.chats.extend_from_slice(&chats));
-                      
-                      toast_dispatch.reduce_mut(|d| {
+                        });
+
+                        return;
+                    }
+                    let chats = import_openai_chat_export(parsed_data.unwrap());
+                    chat_dispatch.reduce_mut(|c| c.chats.extend_from_slice(&chats));
+
+                    toast_dispatch.reduce_mut(|d| {
                         d.status = ToastStatus::Success;
                         d.message = "Imported successfully!".to_string();
                         d.show = true;
-                      });
-                      set_is_modal_open.emit(false);
-                    }
-                ) as Box<dyn FnMut(ProgressEvent)>)
+                    });
+                    set_is_modal_open.emit(false);
+                })
+                    as Box<dyn FnMut(ProgressEvent)>)
             };
             reader.set_onload(Some(onload.as_ref().unchecked_ref()));
-            
-            reader.read_as_text(&file);
+
+            let _ = reader.read_as_text(&file);
             onload.forget();
         }
     };

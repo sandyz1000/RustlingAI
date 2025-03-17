@@ -47,7 +47,7 @@ pub fn NewFolder() -> Html {
             order: 0,
             color: None,
         };
-        folders.iter_mut().map(|(k, v)| v.order += 1);
+        let _ = folders.iter_mut().map(|(k, v)| v.order += 1);
         move || {
             _dispatch.reduce_mut(|c| {
                 // TODO: Revisit this logic

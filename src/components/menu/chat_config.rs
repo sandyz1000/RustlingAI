@@ -154,7 +154,7 @@ fn DefaultSystemChat(SystemChatProps { system_message }: &SystemChatProps) -> Ht
                 "auto",
                 target.scroll_height()
             );
-            target.set_attribute("style", &attr_val);
+            let _ = target.set_attribute("style", &attr_val);
         }
     });
 
@@ -165,14 +165,14 @@ fn DefaultSystemChat(SystemChatProps { system_message }: &SystemChatProps) -> Ht
                 "auto",
                 target.scroll_height()
             );
-            target.set_attribute("style", &attr_val);
+            let _ = target.set_attribute("style", &attr_val);
         }
     });
 
     let handle_on_blur = Callback::from(|e: FocusEvent| {
         if let Some(target) = e.target_dyn_into::<web_sys::HtmlTextAreaElement>() {
             let attr_val = format!("height: {};  max-height: {}", "auto", "2.5rem");
-            target.set_attribute("style", &attr_val);
+            let _ = target.set_attribute("style", &attr_val);
         }
     });
     html! {

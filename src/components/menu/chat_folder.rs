@@ -10,6 +10,8 @@ use crate::{
     hooks::hide_on_outside::use_hideon_outside_click, store::slice::ChatSlice,
     types::chat::ChatHistoryInterface,
 };
+use wasm_bindgen::JsCast;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yewdux::use_store;
 
@@ -64,23 +66,18 @@ pub fn ChatFolder(
     let update_color = {
         let _dispatch = _dispatch.clone();
         let pallete = pallete.clone();
+        let folder_id = folder_id.clone();
         move |color: Option<String>| {
             _dispatch.reduce_mut(|s| {
                 if color.is_some() {
-                    if let Some(c) = s.folders.get_mut(folder_id) {
+                    if let Some(c) = s.folders.get_mut(&folder_id) {
                         c.color = color;
                     }
                 } else {
-                    s.folders.remove(folder_id);
+                    s.folders.remove(&folder_id);
                 }
             });
         }
-    };
-    let onclick_fn = {
-        let update_color = update_color.clone();
-        let color = color.clone();
-        // Callback::from(move |e| update_color(color))
-        |e| {}
     };
 
     let handle_drop = {
@@ -107,7 +104,7 @@ pub fn ChatFolder(
         }
     };
 
-    let handleDragOver = {
+    let handle_drag_over = {
         let is_hover = is_hover.clone();
         move |e: DragEvent| {
             e.prevent_default();
@@ -116,12 +113,12 @@ pub fn ChatFolder(
         }
     };
 
-    let handleDragLeave = {
+    let handle_drag_leave = {
         let is_hover = is_hover.clone();
         move |_| is_hover.set(false)
     };
 
-    let handleKeyDown = {
+    let handle_key_down = {
         let edit_title = edit_title.clone();
         move |e: KeyboardEvent| {
             if e.key() == "Enter" {
@@ -129,7 +126,7 @@ pub fn ChatFolder(
             }
         }
     };
-    let handleTick = {
+    let handle_tick = {
         let is_edit = is_edit.clone();
         let is_delete = is_delete.clone();
         let edit_title = edit_title.clone();
@@ -143,7 +140,7 @@ pub fn ChatFolder(
             }
         }
     };
-    let handleCross = {
+    let handle_cross = {
         let is_edit = is_edit.clone();
         let is_delete = is_delete.clone();
         move |_e| {
@@ -152,7 +149,7 @@ pub fn ChatFolder(
         }
     };
 
-    let toggleExpanded = {
+    let toggle_expanded = {
         let _dispatch = _dispatch.clone();
         let folder_id = folder_id.clone();
         move |_e| {
@@ -188,10 +185,10 @@ pub fn ChatFolder(
                     return;
                 }
                 let color = color.as_ref().unwrap().clone();
-                folder.set_attribute("style", &format!("background: {}dd", color));
+                let _ = folder.set_attribute("style", &format!("background: {}dd", color));
             }
             if let Some(grad) = gradient_ref.cast::<web_sys::HtmlElement>() {
-                grad.set_attribute("style", "width: '0px'");
+                let _ = grad.set_attribute("style", "width: '0px'");
             }
         }
     };
@@ -206,10 +203,19 @@ pub fn ChatFolder(
                     return;
                 }
                 let color = color.as_ref().unwrap().clone();
-                folder.set_attribute("style", &format!("background: {}", color));
+                let _ = folder.set_attribute("style", &format!("background: {}", color));
             }
             if let Some(grad) = gradient_ref.cast::<web_sys::HtmlElement>() {
-                grad.set_attribute("style", "width: '1rem'");
+                let _ = grad.set_attribute("style", "width: '1rem'");
+            }
+        }
+    };
+
+    let on_change_input = {
+        let folder_name = folder_name.clone();
+        move |e: Event| {
+            if let Some(input) = e.dyn_into::<HtmlInputElement>().ok() {
+                folder_name.set(input.value());
             }
         }
     };
@@ -217,13 +223,13 @@ pub fn ChatFolder(
         <div
       class={classes!("w-full", "transition-colors", "group/folder", if *is_hover {"bg-gray-800/40"} else {""})}
       ondrop={handle_drop}
-      ondragover={handleDragOver}
-      ondragleave={handleDragLeave}
+      ondragover={handle_drag_over}
+      ondragleave={handle_drag_leave}
     >
       <div
-        // style={{ background: color || "" }}
+        style={format!("background: {}", if color.is_some() { color.as_ref().unwrap().clone() } else { "".to_string() })}
         class={classes!("transition-colors", "flex", "py-2", "pl-2", "pr-1", "items-center", "gap-3", "relative", "rounded-md", "break-all", "cursor-pointer", "parent-sibling", if color.clone().is_some()  {""} else {"hover:bg-gray-850"})}
-        onclick={toggleExpanded.clone()}
+        onclick={toggle_expanded.clone()}
         ref={folder_ref}
         onmouseenter={on_mouse_enter}
         onmouseleave={on_mouse_leave}
@@ -235,9 +241,9 @@ pub fn ChatFolder(
               type="text"
               class="focus:outline-blue-600 text-sm border-none bg-transparent p-0 m-0 w-full"
               value={(*folder_name).clone()}
-              onchange={ |e| {}}
-            //   onclick={ |e: Event| e.stop_propagation() }
-              onkeydown={handleKeyDown}
+              onchange={ on_change_input }
+              onclick={|e: MouseEvent| e.stop_propagation()}
+              onkeydown={handle_key_down}
               ref={input_ref}
             />
           } else {
@@ -249,27 +255,27 @@ pub fn ChatFolder(
             <div
               ref={gradient_ref}
               class="absolute inset-y-0 right-0 w-4 z-10 transition-all"
-                //   style={}
+              style={format!("linear-gradient(to left, {}, rgb(32 33 35 / 0))", if color.is_some() { color.as_ref().unwrap().clone() } else { "var(--color-900)".to_string() })}
             />
           }
         </div>
         <div
           class="flex text-gray-300"
-          onclick={|e| {}}
+          onclick={|e: MouseEvent| e.stop_propagation()}
         >
 
           if *is_delete || *is_edit {
             <>
               <button
                 class="p-1 hover:text-white"
-                onclick={handleTick}
+                onclick={handle_tick}
                 aria-label="confirm"
               >
                 <TickIcon />
               </button>
               <button
                 class="p-1 hover:text-white"
-                onclick={handleCross}
+                onclick={handle_cross}
                 aria-label="cancel"
               >
                 <CrossIcon />
@@ -302,9 +308,8 @@ pub fn ChatFolder(
                           style={format!("background: {}", c)}
                           class="hover:scale-90 transition-transform h-4 w-4 rounded-full"
                           onclick={
-                            // let update_color = update_color.clone();
-                            // move |e| update_color(Some((*c).to_string()))
-                            |e| {}
+                            let update_color = update_color.clone();
+                            move |_| update_color(Some((*c).to_string()))
                           }
                           aria-label={*c}
                         />
@@ -312,7 +317,7 @@ pub fn ChatFolder(
                       }).collect::<Html>()
                     }
                       <button
-                        onclick={ onclick_fn }
+                        onclick={ let is_edit = is_edit.clone(); move |_| is_edit.set(true) }
                         aria-label="default color"
                       >
                         <RefreshIcon />
@@ -326,21 +331,21 @@ pub fn ChatFolder(
 
               <button
                 class="p-1 hover:text-white md:hidden group-hover/folder:md:inline"
-                onclick={let is_edit = is_edit.clone(); move |w|  is_edit.set(true)}
+                onclick={let is_edit = is_edit.clone(); move |_w|  is_edit.set(true)}
                 aria-label="edit folder title"
               >
                 <EditIcon />
               </button>
               <button
                 class="p-1 hover:text-white md:hidden group-hover/folder:md:inline"
-                onclick={let is_delete = is_delete.clone(); move |w|  is_delete.set(true)}
+                onclick={let is_delete = is_delete.clone(); move |_w|  is_delete.set(true)}
                 aria-label="delete folder"
               >
                 <DeleteIcon />
               </button>
               <button
                 class="p-1 hover:text-white"
-                onclick={toggleExpanded.clone()}
+                onclick={toggle_expanded.clone()}
                 aria-label="expand folder"
               >
                 <DownChevronArrow
@@ -373,9 +378,9 @@ pub fn ChatFolder(
 }
 
 #[derive(Debug, PartialEq, Properties)]
-struct NewChatProps {
+pub struct NewChatProps {
     #[prop_or(None)]
-    folder: Option<String>,
+    pub folder: Option<String>,
 }
 
 #[function_component]
