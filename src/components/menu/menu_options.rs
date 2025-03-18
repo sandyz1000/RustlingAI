@@ -10,7 +10,7 @@ use crate::components::menu::settings::{SettingsMenu, TotalTokenCostDisplay};
 
 use crate::components::popup_modal::PopupModal;
 use crate::hooks::translation::use_translation;
-use crate::store::slice::{ChatSlice, ConfigSlice};
+use crate::store::{ChatSlice, ConfigSlice};
 use crate::types::chat::Theme;
 
 #[function_component]

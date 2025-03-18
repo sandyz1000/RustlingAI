@@ -11,7 +11,7 @@ use crate::{
     },
     constants::DEFAULT_SYSTEM_MESSAGE,
     hooks::translation::use_translation,
-    store::slice::ConfigSlice,
+    store::ConfigSlice,
     types::chat::{ConfigInterface, ModelOptions},
 };
 

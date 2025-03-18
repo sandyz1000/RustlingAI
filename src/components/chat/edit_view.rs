@@ -1,11 +1,9 @@
-use std::{cell::RefCell, rc::Rc};
-
 use crate::components::{
     chat::command_prompt::CommandPrompt, popup_modal::PopupModal, token_count::TokenCount,
 };
 use crate::{
     hooks::{submit::use_submit, translation::use_translation},
-    store::slice::{ChatSlice, ConfigSlice, InputSlice},
+    store::{ChatSlice, ConfigSlice, InputSlice},
     types::chat::MessageInterface,
 };
 use wasm_bindgen::JsCast;

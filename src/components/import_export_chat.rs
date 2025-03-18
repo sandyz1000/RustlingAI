@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use crate::components::icons::ExportIcon;
 use crate::components::popup_modal::PopupModal;
 use crate::hooks::translation::use_translation;
-use crate::store::slice::{ChatSlice, ToastSlice, ToastStatus};
+use crate::store::{ChatSlice, ToastSlice, ToastStatus};
 use crate::types::export::{ExportBase, ExportV1, OpenAIChat};
 use crate::utils::{download_file, get_today, import_openai_chat_export};
 use wasm_bindgen::{JsCast, JsValue};

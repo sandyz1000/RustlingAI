@@ -1,22 +1,25 @@
+use gloo_timers::callback::Timeout;
 use yew::prelude::*;
 use yewdux::use_store;
 
-use crate::store::slice::{ToastSlice, ToastStatus};
+use crate::store::{ToastSlice, ToastStatus};
 
 #[function_component]
 pub(crate) fn Toast() -> Html {
     let (toast_slice, toast_dispatch) = use_store::<ToastSlice>();
-    let timeout_id = use_state(|| 0);
+    let timeout_id = use_state(|| 0.0);
     let set_toast_show = move |val: bool| {
         toast_dispatch.reduce_mut_callback::<_, (), ()>(move |s| s.show = val);
     };
     {
         let set_toast_show = set_toast_show.clone();
         let toast_slice = toast_slice.clone();
+        let timeout_id = timeout_id.clone();
         use_effect_with(toast_slice, move |toast_slice| {
             if toast_slice.show {
-                // TODO: FixMe - Set timeout
-                set_toast_show(false);
+                let timeout = Timeout::new(5000, move || set_toast_show(false)).forget();
+                let timeout = timeout.as_f64().unwrap();
+                timeout_id.set(timeout);
             }
         });
     }

@@ -4,7 +4,7 @@ use crate::{
     components::{icons::DownArrow, menu::{
         chat_folder::ChatFolder, chat_history::ChatHistory, chat_search::ChatSearch,
     }},
-    store::slice::ChatSlice,
+    store::ChatSlice,
     types::chat::{ChatHistoryFolderInterface, ChatHistoryInterface, Folder},
 };
 use gloo_timers::callback::Interval;

@@ -9,7 +9,7 @@ use crate::{
     }, constants::AVAILABLE_ENDPOINTS, hooks::{
         hide_on_outside::use_hideon_outside_click,
         translation::{use_translation, Namespace},
-    }, store::slice::AuthSlice
+    }, store::AuthSlice
 };
 
 #[function_component]

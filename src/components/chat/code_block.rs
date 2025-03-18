@@ -50,7 +50,7 @@ pub fn CodeBar(CodeBarProps{lang,code_ref}: &CodeBarProps) -> Html {
                     is_copied.set(true);
                     let is_copied = is_copied.clone();
                     // Reset the state after 3 seconds
-                    Timeout::new(3000, move || is_copied.set(false)).forget();
+                    let _timeout = Timeout::new(3000, move || is_copied.set(false)).forget();
                 }
             }
         }

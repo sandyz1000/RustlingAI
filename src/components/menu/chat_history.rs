@@ -5,7 +5,7 @@ use yewdux::use_store;
 
 use crate::{
     components::icons::{ChatIcon, CrossIcon, DeleteIcon, EditIcon, TickIcon},
-    store::slice::{ChatSlice, ConfigSlice},
+    store::{ChatSlice, ConfigSlice},
     types::chat::{ChatInterface, ConfigInterface},
 };
 

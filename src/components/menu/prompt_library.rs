@@ -8,7 +8,7 @@ use crate::{
         popup_modal::PopupModal,
     },
     hooks::translation::use_translation,
-    store::slice::PromptSlice,
+    store::PromptSlice,
     types::chat::Prompt,
 };
 

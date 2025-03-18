@@ -2,7 +2,7 @@ use crate::components::icons::CrossIcon;
 use crate::components::popup_modal::PopupModal;
 use crate::components::trans::Trans;
 use crate::hooks::translation::{Namespace, use_translation};
-use crate::store::slice::AuthSlice;
+use crate::store::AuthSlice;
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 use yewdux::use_store;

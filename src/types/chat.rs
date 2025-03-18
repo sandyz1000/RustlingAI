@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, path::Display};
+use std::collections::HashMap;
 use yewdux::prelude::*;
 use super::api::OFFICIAL_APIENDPOINT;
 pub const DEFAULT_USER_MAX_TOKEN: i32 = 4000;

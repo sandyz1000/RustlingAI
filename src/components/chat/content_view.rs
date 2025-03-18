@@ -13,7 +13,7 @@ use crate::components::chat::{
 use crate::components::icons::{CrossIcon, TickIcon};
 use crate::{
     hooks::submit::use_submit,
-    store::slice::{ChatSlice, ConfigSlice},
+    store::{ChatSlice, ConfigSlice},
     types::chat::Role,
 };
 

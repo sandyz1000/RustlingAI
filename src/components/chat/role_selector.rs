@@ -6,7 +6,7 @@ use yewdux::use_store;
 use crate::{
     components::icons::DownChevronArrow,
     hooks::{hide_on_outside::use_hideon_outside_click, translation::use_translation},
-    store::slice::{ChatSlice, InputSlice},
+    store::{ChatSlice, InputSlice},
     types::chat::Role,
 };
 

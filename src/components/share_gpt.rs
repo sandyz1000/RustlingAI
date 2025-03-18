@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use yewdux::use_store;
 
-use crate::{components::popup_modal::PopupModal, hooks::translation::use_translation, store::slice::ChatSlice};
+use crate::{components::popup_modal::PopupModal, hooks::translation::use_translation, store::ChatSlice};
 
 #[function_component]
 pub fn ShareGPT() -> Html {

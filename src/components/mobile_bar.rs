@@ -1,7 +1,7 @@
 use crate::{
     components::icons::{MenuIcon, PlusIcon},
     hooks::add_chat::use_add_chat,
-    store::slice::{ChatSlice, ConfigSlice},
+    store::{ChatSlice, ConfigSlice},
 };
 use yew::prelude::*;
 use yewdux::prelude::*;

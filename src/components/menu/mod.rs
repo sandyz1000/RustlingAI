@@ -21,7 +21,7 @@ use yewdux::prelude::*;
 
 use crate::{
     components::icons::{CrossIcon2, DownArrow, MenuIcon, NewFolderIcon},
-    store::slice::{ChatSlice, ConfigSlice},
+    store::{ChatSlice, ConfigSlice},
     types::chat::Folder,
 };
 

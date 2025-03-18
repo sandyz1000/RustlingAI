@@ -2,7 +2,7 @@ use std::rc::Rc;
 use yew::prelude::*;
 use yewdux::use_store;
 
-use crate::{store::slice::ChatSlice, types::chat::ChatInterface};
+use crate::{store::ChatSlice, types::chat::ChatInterface};
 
 #[hook]
 pub fn use_initialise_chat() -> Rc<dyn Fn()> {

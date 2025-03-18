@@ -1,4 +1,4 @@
-use crate::store::slice::{AuthSlice, ChatSlice, ConfigSlice};
+use crate::store::{AuthSlice, ChatSlice, ConfigSlice};
 use crate::types::api::EventSourceData;
 use crate::types::chat::{MessageInterface, ModelOptions, Role, TokenUsage};
 use crate::{api::get_chat_completion_stream, types::chat::ConfigInterface};
@@ -15,9 +15,6 @@ type HandleAsyncFunc = Arc<dyn Fn() -> Box<dyn Future<Output = Option<String>> +
 
 #[hook]
 pub fn use_submit() -> (Callback<()>, String) {
-    use crate::types::api::EventSourceData;
-
-
     let (auth_state, _) = use_store::<AuthSlice>();
     let (config_store, config_dispath) = use_store::<ConfigSlice>();
     let (state, chat_dispatch) = use_store::<ChatSlice>();

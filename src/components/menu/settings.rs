@@ -16,7 +16,7 @@ use crate::{
         toggle::Toggle,
     },
     hooks::translation::{Namespace, use_translation},
-    store::slice::ConfigSlice,
+    store::ConfigSlice,
     types::chat::{ModelOptions, TokenUsage},
 };
 

@@ -2,20 +2,20 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yewdux::use_store;
 
-use crate::{components::search_bar::SearchBar, store::slice::ChatSlice};
+use crate::{components::search_bar::SearchBar, store::ChatSlice};
 #[derive(Debug, Properties, PartialEq)]
 pub struct ChatSearchProp {
-    pub filter: UseStateHandle<String>
+    pub filter: UseStateHandle<String>,
 }
 
 #[function_component]
-pub fn ChatSearch(ChatSearchProp {filter}: &ChatSearchProp) -> Html {
+pub fn ChatSearch(ChatSearchProp { filter }: &ChatSearchProp) -> Html {
     let filter = filter.clone();
     let (state, _) = use_store::<ChatSlice>();
     let generating = state.generating;
     let value = use_state(|| "".to_string());
     let handle_change = {
-        let filter=  filter.clone();
+        let filter = filter.clone();
         move |e| filter.set(e)
     };
     // TODO: Revisit this impl
@@ -31,7 +31,7 @@ pub fn ChatSearch(ChatSearchProp {filter}: &ChatSearchProp) -> Html {
     };
 
     use_effect(move || debounced.run());
-    
+
     html! {
         <SearchBar
             value={filter.to_string()}

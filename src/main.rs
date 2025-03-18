@@ -11,7 +11,7 @@ use components::{api_popup::ApiPopup, chat::Chat, menu::Menu, toast::Toast};
 use gloo::events::EventListener;
 use gloo_storage::{LocalStorage, Storage};
 use hooks::initialise_chat::use_initialise_chat;
-use store::slice::{AuthSlice, ChatSlice, ConfigSlice};
+use store::{AuthSlice, ChatSlice, ConfigSlice};
 use types::chat::ChatInterface;
 use wasm_bindgen::JsCast;
 use yew::prelude::*;

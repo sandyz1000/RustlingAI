@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use yewdux::prelude::*;
-use crate::{store::slice::ChatSlice, types::chat::ModelOptions};
+use crate::{store::ChatSlice, types::chat::ModelOptions};
 
 #[function_component]
 pub(crate) fn TokenCount() -> Html {

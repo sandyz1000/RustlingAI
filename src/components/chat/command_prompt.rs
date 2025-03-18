@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{hooks::{hide_on_outside::use_hideon_outside_click, translation::use_translation}, store::slice::PromptSlice};
+use crate::{hooks::{hide_on_outside::use_hideon_outside_click, translation::use_translation}, store::PromptSlice};
 
 #[derive(Debug, Properties, PartialEq)]
 pub struct Props {

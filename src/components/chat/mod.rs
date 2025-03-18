@@ -20,7 +20,7 @@ use crate::{
         stop_gen_btn::StopGeneratingButton,
     },
     hooks::translation::use_translation,
-    store::slice::{ChatSlice, ConfigSlice, InputSlice},
+    store::{ChatSlice, ConfigSlice, InputSlice},
     types::chat::{ConfigInterface, Role},
 };
 use config_menu::ConfigMenu;

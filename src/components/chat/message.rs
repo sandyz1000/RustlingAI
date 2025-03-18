@@ -9,7 +9,7 @@ use crate::{
         },
         icons::PlusIcon,
     },
-    store::slice::{ChatSlice, ConfigSlice},
+    store::{ChatSlice, ConfigSlice},
     types::chat::{ChatInterface, MessageInterface, Role},
 };
 
@@ -38,10 +38,12 @@ pub fn Message(
     let advanced_mode = use_state(|| config.advanced_mode);
     html! {
         <div
-        class={classes!("w-full", "border-b", "border-black/10", "dark:border-gray-900/50", "text-gray-800", "dark:text-gray-100", "group", BACKGROUND_STYLE[(message_index % 2) as usize])}
+        class={classes!("w-full", "border-b", "border-black/10", "dark:border-gray-900/50", "text-gray-800", "dark:text-gray-100", "group", 
+        BACKGROUND_STYLE[(message_index % 2) as usize])}
       >
         <div
-          class={classes!("text-base", "gap-4", "md:gap-6", "m-auto", "p-4", "md:py-6", "flex", "transition-all", "ease-in-out", if *hide_side_menu {"md:max-w-5xl lg:max-w-5xl xl:max-w-6xl"} else {"md:max-w-3xl lg:max-w-3xl xl:max-w-4xl"})}
+          class={classes!("text-base", "gap-4", "md:gap-6", "m-auto", "p-4", "md:py-6", "flex", "transition-all", "ease-in-out", 
+          if *hide_side_menu {"md:max-w-5xl lg:max-w-5xl xl:max-w-6xl"} else {"md:max-w-3xl lg:max-w-3xl xl:max-w-4xl"})}
         >
           <Avatar role={role.clone()} />
           <div class="w-[calc(100%-50px)]">
@@ -125,26 +127,31 @@ pub fn NewMessageButton(MessageBtnProps { msg_index }: &MessageBtnProps) -> Html
         move |_e| {
             let curr = store.curr_chat_index;
             store_dispatch.reduce_mut(|d| {
-                    if curr == -1 {
-                        let mut title_index = 1;
-                        let mut title = format!("New Chat {}", title_index);
-                        while d.chats.iter().any(|chat| chat.title.as_ref().unwrap().clone() == title) {
-                            title_index += 1;
-                            title = format!("New Chat {}", title_index);
-                        }
-                    
-                        let default_chat = ChatInterface::new(title, None, vec![], None, "".to_string());
-                        d.chats.insert(0, default_chat);
-                        d.curr_chat_index = 0;
-                    } else {
-                        d.messages.push(MessageInterface {
-                            role: Role::User,
-                            content: "".to_string(),
-                            folder: None,
-                            messages: vec![],
-                        })
+                if curr == -1 {
+                    let mut title_index = 1;
+                    let mut title = format!("New Chat {}", title_index);
+                    while d
+                        .chats
+                        .iter()
+                        .any(|chat| chat.title.as_ref().unwrap().clone() == title)
+                    {
+                        title_index += 1;
+                        title = format!("New Chat {}", title_index);
                     }
-                });
+
+                    let default_chat =
+                        ChatInterface::new(title, None, vec![], None, "".to_string());
+                    d.chats.insert(0, default_chat);
+                    d.curr_chat_index = 0;
+                } else {
+                    d.messages.push(MessageInterface {
+                        role: Role::User,
+                        content: "".to_string(),
+                        folder: None,
+                        messages: vec![],
+                    })
+                }
+            });
         }
     };
     html! {

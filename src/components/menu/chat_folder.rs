@@ -7,7 +7,7 @@ use crate::constants::FOLDER_COLOR_OPTIONS;
 use crate::hooks::add_chat::use_add_chat;
 use crate::hooks::translation::use_translation;
 use crate::{
-    hooks::hide_on_outside::use_hideon_outside_click, store::slice::ChatSlice,
+    hooks::hide_on_outside::use_hideon_outside_click, store::ChatSlice,
     types::chat::ChatHistoryInterface,
 };
 use wasm_bindgen::JsCast;
