@@ -7,7 +7,7 @@ authors = ["Sandip Dey <sandip.dey1988@yahoo.com>"]
 [dependencies]
 yew = "0.21.0"
 bytes = "*"
-tokio = { version = "1.43.0", features = ["full"] }
+tokio = { version = "1.44.1", features = ["full"] }
 yew-router = "0.18.0"
 wasm-bindgen = "0.2.100"
 wasm-bindgen-futures = "0.4.50"
@@ -43,7 +43,12 @@ mime_guess = "2.0.5"
 
 [dependencies.web-sys]
 version = "0.3"
-features = ["HtmlTextAreaElement", "HtmlElement", "HtmlAnchorElement", "CustomEvent"]
+features = [
+    "HtmlTextAreaElement",
+    "HtmlElement",
+    "HtmlAnchorElement",
+    "CustomEvent",
+]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.50"
