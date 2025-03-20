@@ -8,7 +8,7 @@ use crate::{
         icons::{CalculatorIcon, SettingIcon},
         language_selector::LanguageSelector,
         menu::{
-            chat_config::ChatConfigMenu,
+            chat::config::ChatConfigMenu,
             menu_options::{ClearConversation, ThemeSwitcher},
             prompt_library::PromptLibraryMenu,
         },

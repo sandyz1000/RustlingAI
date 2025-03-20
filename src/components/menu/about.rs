@@ -6,7 +6,7 @@ use yew::prelude::*;
 
 #[function_component]
 pub(crate) fn AboutMenu() -> Html {
-    let translation = use_translation(vec!["main".to_string(), "about".to_string()]);
+    let translate = use_translation(vec!["main".to_string(), "about".to_string()]);
     let modal_open = use_state(|| false);
     let on_click = {
         let modal_open = modal_open.clone();
@@ -29,17 +29,17 @@ pub(crate) fn AboutMenu() -> Html {
           <div>
             <AboutIcon />
           </div>
-          { translation("about".to_string(), None) }
+          { translate("about".to_string(), None) }
         </a>
         if *modal_open {
           <PopupModal
-            title={ translation("about".to_string(), None) }
+            title={ translate("about".to_string(), None) }
             set_is_modal_open={ set_is_modal_open }
             cancel_button={false}
           >
             <div class="p-6 border-b border-gray-200 dark:border-gray-600">
               <div class="min-w-fit text-gray-900 dark:text-gray-300 text-sm flex flex-col gap-3 leading-relaxed">
-                <p>{translation("description".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                <p>{translate("description".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
                 <p>
                   <Trans
                   i18n_key="sourceCode"
@@ -63,7 +63,7 @@ pub(crate) fn AboutMenu() -> Html {
                     components={vec![
                       html! {
                         <a
-                          href={translation("initiative.link".to_string(), Some(Namespace { ns: "about".to_string() }))}
+                          href={translate("initiative.link".to_string(), Some(Namespace { ns: "about".to_string() }))}
                           target="_blank"
                           class="link"
                         />
@@ -73,9 +73,9 @@ pub(crate) fn AboutMenu() -> Html {
                 </p>
 
                 <h2 class="text-lg font-bold">
-                  {translation("discordServer.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
+                  {translate("discordServer.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
                 </h2>
-                <p>{translation("discordServer.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                <p>{translate("discordServer.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
 
                 <p>
                   <Trans
@@ -95,9 +95,9 @@ pub(crate) fn AboutMenu() -> Html {
 
                 <>
                   <h2 class="text-lg font-bold">
-                    {translation("support.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
+                    {translate("support.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
                   </h2>
-                  <p>{translation("support.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                  <p>{translate("support.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
                   <p>
                     <Trans
                       i18n_key="support.paragraph2"
@@ -113,7 +113,7 @@ pub(crate) fn AboutMenu() -> Html {
                       ]}
                     />
                   </p>
-                  <p>{translation("support.paragraph3".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                  <p>{translate("support.paragraph3".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
 
                   <div class="flex flex-col items-center gap-4 my-4">
                     <a href="https://github.com/sponsors/ztjhz" target="_blank">
@@ -132,7 +132,7 @@ pub(crate) fn AboutMenu() -> Html {
                     <div class="flex gap-x-10 gap-y-4 flex-wrap justify-center">
                       <div class="flex flex-col items-center justify-center gap-1">
                         <div>
-                        {format!("{} {}", translation("support.alipay".to_string(), Some(Namespace { ns: "about".to_string() })), "(Ayaka)")}
+                        {format!("{} {}", translate("support.alipay".to_string(), Some(Namespace { ns: "about".to_string() })), "(Ayaka)")}
                         </div>
                         <img
                           class="rounded-md w-32 h-32"
@@ -142,7 +142,7 @@ pub(crate) fn AboutMenu() -> Html {
                       </div>
                       <div class="flex flex-col items-center justify-center gap-1">
                         <div>
-                          {format!("{} {}", translation("support.wechatPay".to_string(), Some(Namespace { ns: "about".to_string() })), "(Ayaka)")}
+                          {format!("{} {}", translate("support.wechatPay".to_string(), Some(Namespace { ns: "about".to_string() })), "(Ayaka)")}
                         </div>
                         <img
                           class="rounded-md w-32 h-32"
@@ -152,15 +152,15 @@ pub(crate) fn AboutMenu() -> Html {
                       </div>
                     </div>
                   </div>
-                  <p>{translation("support.paragraph4".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                  <p>{translate("support.paragraph4".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
                 </>
 
                 <h2 class="text-lg font-bold">
-                  {translation("privacyStatement.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
+                  {translate("privacyStatement.title".to_string(), Some(Namespace { ns: "about".to_string() }))}
                 </h2>
-                <p>{translation("privacyStatement.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                <p>{translate("privacyStatement.paragraph1".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
 
-                <p>{translation("privacyStatement.paragraph2".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
+                <p>{translate("privacyStatement.paragraph2".to_string(), Some(Namespace { ns: "about".to_string() }))}</p>
               </div>
             </div>
           </PopupModal>

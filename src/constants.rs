@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::collections::HashMap;
 
 pub const CODE_LANGUAGE_SUBSET: &[&str] = &[

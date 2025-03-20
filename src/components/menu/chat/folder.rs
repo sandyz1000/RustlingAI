@@ -2,7 +2,7 @@ use crate::components::icons::{
     ColorPaletteIcon, CrossIcon, DeleteIcon, DownChevronArrow, EditIcon, FolderIcon, PlusIcon,
     RefreshIcon, TickIcon,
 };
-use crate::components::menu::chat_history::ChatHistory;
+use crate::components::menu::chat::history::ChatHistory;
 use crate::constants::FOLDER_COLOR_OPTIONS;
 use crate::hooks::add_chat::use_add_chat;
 use crate::hooks::translation::use_translation;
@@ -65,7 +65,7 @@ pub fn ChatFolder(
     };
     let update_color = {
         let _dispatch = _dispatch.clone();
-        let pallete = pallete.clone();
+        // let pallete = pallete.clone();
         let folder_id = folder_id.clone();
         move |color: Option<String>| {
             _dispatch.reduce_mut(|s| {

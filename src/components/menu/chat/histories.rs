@@ -1,8 +1,8 @@
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 use crate::{
     components::{icons::DownArrow, menu::{
-        chat_folder::ChatFolder, chat_history::ChatHistory, chat_search::ChatSearch,
+        chat::folder::ChatFolder, chat::history::ChatHistory, chat::search::ChatSearch,
     }},
     store::ChatSlice,
     types::chat::{ChatHistoryFolderInterface, ChatHistoryInterface, Folder},
@@ -10,7 +10,7 @@ use crate::{
 use gloo_timers::callback::Interval;
 use web_sys::HtmlElement;
 use yew::prelude::*;
-use yew_hooks::use_debounce;
+// use yew_hooks::use_debounce;
 use yewdux::prelude::*;
 
 #[function_component]
@@ -275,7 +275,7 @@ pub struct ScrollerParams {
 
 #[function_component]
 pub(crate) fn ScrollToBottomButton() -> Html {
-    let scroll_btm = |e: MouseEvent| {};
+    let scroll_btm = |_e: MouseEvent| {};
     let at_bottom = use_state(|| false);
     html! {
       <button
@@ -301,7 +301,7 @@ pub fn ScrollToBottom(props: &ScrollToBottomProps) -> Html {
         let node_ref = node_ref.clone();
         let debounce_time = props.debounce;
         // TODO: Fix this implementation
-        |e| {
+        |_e| {
             // use_debounce(
             //     move || {
             //         if let Some(elem) = node_ref.cast::<HtmlElement>() {

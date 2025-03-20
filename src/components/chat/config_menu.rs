@@ -1,8 +1,6 @@
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
-use yewdux::prelude::*;
-
-use std::{rc::Rc, str::FromStr};
+use std::str::FromStr;
 
 use crate::{
     components::{icons::DownChevronArrow, popup_modal::PopupModal},
@@ -73,11 +71,11 @@ pub struct FreqPenaltyProps {
 
 #[function_component]
 pub(crate) fn FrequencyPenaltySlider(FreqPenaltyProps { freq_penalty }: &FreqPenaltyProps) -> Html {
-    let t = use_translation(vec!["model".to_string()]);
+    let translate = use_translation(vec!["model".to_string()]);
     html! {
       <div class="mt-5 pt-5 border-t border-gray-500">
         <label class="block text-sm font-medium text-gray-900 dark:text-white">
-          {format!("{}:{}", t("frequencyPenalty.label".to_string(), None), freq_penalty.to_string()) }
+          {format!("{}:{}", translate("frequencyPenalty.label".to_string(), None), freq_penalty.to_string()) }
         </label>
         <input
           id="default-range"
@@ -96,7 +94,7 @@ pub(crate) fn FrequencyPenaltySlider(FreqPenaltyProps { freq_penalty }: &FreqPen
           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
         <div class="min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2">
-          {t("frequencyPenalty.description".to_string(), None)}
+          {translate("frequencyPenalty.description".to_string(), None)}
         </div>
       </div>
     }
@@ -145,11 +143,11 @@ pub(crate) struct TopPSliderProps {
 
 #[function_component]
 pub(crate) fn TopPSlider(TopPSliderProps { top_p }: &TopPSliderProps) -> Html {
-    let t = use_translation(vec!["model".to_string()]);
+    let translate = use_translation(vec!["model".to_string()]);
     html! {
       <div class="mt-5 pt-5 border-t border-gray-500">
         <label class="block text-sm font-medium text-gray-900 dark:text-white">
-          {format!("{}: {}", t("topP.label".to_string(), None), top_p.to_string())}
+          {format!("{}: {}", translate("topP.label".to_string(), None), top_p.to_string())}
         </label>
         <input
           id="default-range"
@@ -168,7 +166,7 @@ pub(crate) fn TopPSlider(TopPSliderProps { top_p }: &TopPSliderProps) -> Html {
           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
         <div class="min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2">
-          {t("topP.description".to_string(), None)}
+          {translate("topP.description".to_string(), None)}
         </div>
       </div>
     }
@@ -183,11 +181,11 @@ pub(crate) struct PenaltySliderProps {
 pub(crate) fn PresencePenaltySlider(
     PenaltySliderProps { presence_penalty }: &PenaltySliderProps,
 ) -> Html {
-    let t = use_translation(vec!["model".to_string()]);
+    let translate = use_translation(vec!["model".to_string()]);
     html! {
       <div class="mt-5 pt-5 border-t border-gray-500">
         <label class="block text-sm font-medium text-gray-900 dark:text-white">
-          {format!("{}: {}", t("presencePenalty.label".to_string(), None), presence_penalty.to_string())}
+          {format!("{}: {}", translate("presencePenalty.label".to_string(), None), presence_penalty.to_string())}
         </label>
         <input
           id="default-range"
@@ -206,7 +204,7 @@ pub(crate) fn PresencePenaltySlider(
           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
         <div class="min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2">
-          {t("presencePenalty.description".to_string(), None)}
+          {translate("presencePenalty.description".to_string(), None)}
         </div>
       </div>
     }

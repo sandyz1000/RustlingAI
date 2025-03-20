@@ -1,10 +1,6 @@
 pub(crate) mod about;
 pub(crate) mod api;
-pub(crate) mod chat_config;
-pub(crate) mod chat_folder;
-pub(crate) mod chat_histories;
-pub(crate) mod chat_history;
-pub(crate) mod chat_search;
+pub(crate) mod chat;
 pub(crate) mod config;
 pub(crate) mod menu_options;
 pub(crate) mod prompt_library;
@@ -12,8 +8,8 @@ pub(crate) mod settings;
 
 use std::rc::Rc;
 
-use chat_folder::NewChat;
-use chat_histories::ChatHistoryList;
+use chat::folder::NewChat;
+use chat::histories::ChatHistoryList;
 use gloo::events::EventListener;
 use menu_options::MenuOptions;
 use yew::prelude::*;

@@ -25,7 +25,7 @@ pub fn PopupModal(props: &PopupModalProps) -> Html {
     let on_close = {
         let set_is_modal_open = props.set_is_modal_open.clone();
         let handle_close = props.handle_close.clone();
-        Callback::from(move |e: MouseEvent| {
+        Callback::from(move |_e: MouseEvent| {
             if let Some(cb) = &handle_close {
                 cb.emit(());
             }
@@ -109,7 +109,7 @@ pub fn PopupModal(props: &PopupModalProps) -> Html {
                                 class="btn btn-primary"
                                 onclick={
                                     let _confirm = handle_confirm.clone();
-                                    Callback::from(move |e: MouseEvent| {
+                                    Callback::from(move |_e: MouseEvent| {
                                         _confirm.emit(())
                                     })
                                 }

@@ -3,7 +3,6 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use crate::types::{api::{EventSourceData, EventSourceDataInterface, ShareGPTSubmitBodyInterface}, chat::ModelOptions};
 use std::collections::HashMap;
 use reqwest::Error as ReqwestError;
-use serde_json::Value;
 use crate::types::chat::{ConfigInterface, MessageInterface};
 
 pub async fn get_chat_completion(

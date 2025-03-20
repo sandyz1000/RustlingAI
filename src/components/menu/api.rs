@@ -190,7 +190,7 @@ pub(crate) fn ApiEndpointSelector(
           aria-label="expand api menu"
           onclick={
             let drop_down = drop_down.clone();
-            move |e| drop_down.set(!(*drop_down))
+            move |_e| drop_down.set(!(*drop_down))
           }
         >
           <span class="truncate">{ api_endpoint.to_string() }</span>

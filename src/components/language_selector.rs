@@ -2,18 +2,22 @@ use std::collections::HashMap;
 
 use yew::prelude::*;
 
-use crate::{components::icons::DownChevronArrow, constants::SELECTABLE_LANGUAGES, hooks::translation::use_translation};
+use crate::{
+  components::icons::DownChevronArrow, constants::SELECTABLE_LANGUAGES,
+  hooks::translation::use_translation,
+};
 
 #[function_component]
 pub(crate) fn LanguageSelector() -> Html {
-  let i18n  = use_translation(vec![]);
+  let i18n = use_translation(vec![]);
   let dropdown = use_state(|| false);
   let lang_code_to_name: HashMap<String, String> = HashMap::new();
+
   fn get_language_name(lang_code_to_name: &HashMap<String, String>, language: &str) -> String {
-      lang_code_to_name
-        .get(language)
-        .cloned() // Get the value as an owned `String`
-        .unwrap_or_else(|| language.to_string()) // Fallback to the language code if not found
+    lang_code_to_name
+      .get(language)
+      .cloned() // Get the value as an owned `String`
+      .unwrap_or_else(|| language.to_string()) // Fallback to the language code if not found
   }
 
   html! {
@@ -40,9 +44,11 @@ pub(crate) fn LanguageSelector() -> Html {
               html! {
                 <li
                   class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
-                  onclick={ |e| {
-                    // i18n.changeLanguage(lang);
-                    // dropdown.set(false);
+                  onclick={
+                    let dropdown = dropdown.clone();
+                    move |_e| {
+                      // i18n.changeLanguage(lang);
+                      dropdown.set(false);
                   }}
                   key={lang.to_string()}
                   lang={lang.to_string()}
@@ -50,7 +56,7 @@ pub(crate) fn LanguageSelector() -> Html {
                   // {languageCodeToName[lang]}
                 </li>
               }
-            }).collect::<Html>()  
+            }).collect::<Html>()
           }
         </ul>
       </div>

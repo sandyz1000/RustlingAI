@@ -14,7 +14,7 @@ use crate::{
     components::{
         chat::message::Message,
         icons::CrossIcon,
-        menu::chat_histories::{ScrollToBottom, ScrollToBottomButton},
+        menu::chat::histories::{ScrollToBottom, ScrollToBottomButton},
         mobile_bar::MobileBar,
         share_gpt::ShareGPT,
         stop_gen_btn::StopGeneratingButton,

@@ -11,7 +11,7 @@ use yew::prelude::*;
 use yewdux::{Dispatch, use_store};
 use crate::api::parse_event_source;
 
-type HandleAsyncFunc = Arc<dyn Fn() -> Box<dyn Future<Output = Option<String>> + Send + Sync>>;
+// type HandleAsyncFunc = Arc<dyn Fn() -> Box<dyn Future<Output = Option<String>> + Send + Sync>>;
 
 #[hook]
 pub fn use_submit() -> (Callback<()>, String) {

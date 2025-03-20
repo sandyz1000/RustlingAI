@@ -1,6 +1,6 @@
 use yewdux::prelude::*;
 
-use crate::{constants::DEFAULT_SYSTEM_MESSAGE, types::{
+use crate::{components::toast::ToastStatus, constants::DEFAULT_SYSTEM_MESSAGE, types::{
     api::SyncStatus,
     chat::{ChatInterface, ConfigInterface, FolderCollection, MessageInterface, Prompt, Role, Theme, TotalTokenUsed},
 }};
@@ -25,14 +25,6 @@ impl ToastSlice {
             status,
         }
     }
-}
-
-#[derive(Debug, PartialEq, Default, Clone)]
-pub(crate) enum ToastStatus {
-    #[default]
-    Success,
-    Error,
-    Warning,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Store)]
